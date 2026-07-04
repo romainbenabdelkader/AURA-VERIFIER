@@ -1,0 +1,30 @@
+{
+  "aura_version": "0.1-test",
+  "profile": "AURA_TEST_VECTOR",
+  "aura_id": "aura:v1:test-vector-valid",
+  "aura_uid": "aura:v1:test-vector-valid",
+  "issuer": {
+    "id": "AURA-TEST",
+    "service": "AURA-VERIFIER",
+    "public_key_pem": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAAd0SK429Bna/xuKcSJEGxirqTOywMFfrvLvjQT+w3xI=\n-----END PUBLIC KEY-----\n"
+  },
+  "issued_at": "2026-01-01T00:00:00.000Z",
+  "asset": {
+    "filename": "asset.txt",
+    "hash_algorithm": "SHA3-256",
+    "hash": "4d39c248dce544735fab9a7097963a96d3b85282d83736c392265ecb05789779"
+  },
+  "proof": {
+    "scope": "origin_integrity_consent_signal",
+    "signature_algorithm": "Ed25519"
+  },
+  "declarations": {
+    "legal_note": "AURA establishes technical facts and does not decide legal ownership."
+  },
+  "signature": {
+    "algorithm": "Ed25519",
+    "canonicalization": "RFC-8785-JCS",
+    "format": "Ed25519 raw signature, base64 encoded",
+    "value": "yBq23lgbsGCDN6mYOgC23f8FbfU7VjCdmkfVOmqeemIiRzEmqAc/MAv9+/v9OiL6ktce42YRZCgLgJbJxFWeAQ=="
+  }
+}

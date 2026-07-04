@@ -1,0 +1,13 @@
+{
+  "issuer": "AURA-TEST",
+  "algorithm": "Ed25519",
+  "public_key_url": "./public-key.pem",
+  "public_key_fingerprint_sha256": "bf3c9101871d909e17ac6c283763e98d6a92f4e1aecf416c62587d7ae0db9e2e",
+  "public_key_fingerprint_sha3_256": "934be233d4c5f06abfbaf9e815596d61c6a9c539dd783d9e93a045b0b95efa53",
+  "valid_from": "2026-01-01T00:00:00.000Z",
+  "status": "active",
+  "key_id": "aura-test-bf3c9101871d909e",
+  "verification_spec_url": "./aura-verification-spec-v1.0.md",
+  "zenodo_public_key_doi": null,
+  "zenodo_spec_doi": null
+}

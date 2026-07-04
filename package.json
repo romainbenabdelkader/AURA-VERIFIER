@@ -1,0 +1,27 @@
+{
+  "name": "aura-verifier",
+  "version": "0.1.0",
+  "description": "Independent CLI and browser verifier for AURA Evidence Packages.",
+  "type": "module",
+  "bin": {
+    "aura": "./bin/aura.js"
+  },
+  "scripts": {
+    "test": "node tests/run-tests.js",
+    "generate:test-vector": "node scripts/generate-test-vector.js",
+    "serve:web": "python3 -m http.server 5177"
+  },
+  "keywords": [
+    "aura",
+    "evidence",
+    "ed25519",
+    "sha3",
+    "rfc8785",
+    "jcs"
+  ],
+  "author": "AURA contributors",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  }
+}
