@@ -1,6 +1,7 @@
 import { canonicalize, unsignedManifest } from './jcs.js';
 import { sha3_256_hex } from './sha3.js';
 import { base64ToBytes, pemToDer, sameBytes } from './pem.js';
+import { checkManifestStructure } from './schema-check.js';
 
 async function sha256Hex(bytes) {
   const digest = await crypto.subtle.digest('SHA-256', bytes);
@@ -11,6 +12,23 @@ function extractAssetHash(manifest) {
   return manifest?.asset?.hash || manifest?.asset_hash || null;
 }
 
+// A catalog claim is a signed, timestamped catalogue declaration issued WITHOUT
+// a supplied asset file. It is detected from explicit markers; the integrity
+// decision below also treats "no file + no declared hash" as not-applicable.
+function isCatalogClaim(manifest) {
+  const marker =
+    manifest?.evidence_type ||
+    manifest?.evidenceType ||
+    manifest?.proof_level ||
+    manifest?.proofLevel ||
+    manifest?.profile ||
+    '';
+  return (
+    (manifest && typeof manifest.catalog_claim === 'object' && manifest.catalog_claim !== null) ||
+    /catalog[_-]?claim/i.test(String(marker))
+  );
+}
+
 function statusFromChecks(errors, warnings) {
   if (errors.length > 0) return 'invalid';
   if (warnings.length > 0) return 'warning';
@@ -18,7 +36,7 @@ function statusFromChecks(errors, warnings) {
 }
 
 export async function verifyAuraPackageBrowser({
-  assetBytes,
+  assetBytes = null,
   manifestText,
   publicKeyPem,
   issuerText = null,
@@ -28,13 +46,39 @@ export async function verifyAuraPackageBrowser({
   const manifest = JSON.parse(manifestText);
   const issuer = issuerText ? JSON.parse(issuerText) : null;
   const signature = manifest.signature || {};
+
+  // Structural validation against the v1.1.0 schema (no-op for v0.1/v1.0).
+  const structure = checkManifestStructure(manifest);
+  errors.push(...structure.errors);
+  warnings.push(...structure.warnings);
+
+  // --- Asset integrity (optional asset; fileless catalog claims are N/A) ---
   const manifestAssetHash = extractAssetHash(manifest);
-  const computedAssetHash = sha3_256_hex(new Uint8Array(assetBytes));
-  const assetHashOk = Boolean(manifestAssetHash && computedAssetHash === manifestAssetHash);
+  const catalogClaim = isCatalogClaim(manifest);
+  let computedAssetHash = null;
+  let assetHashOk = null; // true | false | null (not applicable / not checked)
+  let integrityStatus; // 'verified' | 'mismatch' | 'not_checked' | 'not_applicable'
 
-  if (!manifestAssetHash) errors.push('Manifest asset hash is missing.');
-  if (!assetHashOk) errors.push('Asset hash mismatch.');
+  if (assetBytes) {
+    computedAssetHash = sha3_256_hex(new Uint8Array(assetBytes));
+    if (manifestAssetHash) {
+      assetHashOk = computedAssetHash === manifestAssetHash;
+      integrityStatus = assetHashOk ? 'verified' : 'mismatch';
+      if (!assetHashOk) errors.push('Asset hash mismatch.');
+    } else {
+      integrityStatus = 'not_checked';
+      warnings.push('Asset file supplied but the manifest declares no asset hash; integrity was not checked.');
+    }
+  } else if (manifestAssetHash && !catalogClaim) {
+    integrityStatus = 'not_checked';
+    warnings.push('No asset file supplied; asset integrity was NOT verified. Supply the original file to check integrity.');
+  } else {
+    // Catalog claim / fileless declaration: no asset to hash. This is expected,
+    // not an error — we verify the signed declaration, not file integrity.
+    integrityStatus = 'not_applicable';
+  }
 
+  // --- Signature ---
   const publicKeyDer = pemToDer(publicKeyPem);
   const payload = new TextEncoder().encode(canonicalize(unsignedManifest(manifest)));
   let signatureOk = false;
@@ -43,19 +87,8 @@ export async function verifyAuraPackageBrowser({
     errors.push('Manifest signature is missing.');
   } else {
     try {
-      const key = await crypto.subtle.importKey(
-        'spki',
-        publicKeyDer,
-        { name: 'Ed25519' },
-        false,
-        ['verify'],
-      );
-      signatureOk = await crypto.subtle.verify(
-        { name: 'Ed25519' },
-        key,
-        base64ToBytes(signature.value),
-        payload,
-      );
+      const key = await crypto.subtle.importKey('spki', publicKeyDer, { name: 'Ed25519' }, false, ['verify']);
+      signatureOk = await crypto.subtle.verify({ name: 'Ed25519' }, key, base64ToBytes(signature.value), payload);
       if (!signatureOk) errors.push('Ed25519 signature mismatch.');
     } catch (error) {
       signatureOk = false;
@@ -72,6 +105,19 @@ export async function verifyAuraPackageBrowser({
     const manifestKeyDer = pemToDer(manifest.issuer.public_key_pem);
     if (!sameBytes(publicKeyDer, manifestKeyDer)) {
       errors.push('Provided public key does not match manifest issuer public key.');
+    }
+  }
+
+  // --- Reference-anchor issuer-key digest pinning (v1.1) ---
+  // The signed manifest pins the issuer key by its DER (SPKI) sha3-256 digest.
+  // The key is trusted only if it matches that digest — trust is anchored in the
+  // signed payload, never in where the key was fetched from.
+  let issuerKeyPinOk = null;
+  const pinnedDigest = manifest?.reference_anchor?.issuer_key?.public_key_digest || null;
+  if (pinnedDigest) {
+    issuerKeyPinOk = pinnedDigest === `sha3-256:${publicKeySha3}`;
+    if (!issuerKeyPinOk) {
+      errors.push('Public key does not match reference_anchor.issuer_key.public_key_digest (DER/SPKI sha3-256).');
     }
   }
 
@@ -102,9 +148,12 @@ export async function verifyAuraPackageBrowser({
   return {
     status,
     valid: status === 'valid',
+    evidenceType: catalogClaim ? 'catalog_claim' : 'evidence_package',
     auraUid: manifest.aura_uid || manifest.aura_id || null,
+    integrityStatus,
     assetHashOk,
     signatureOk,
+    issuerKeyPinOk,
     issuerKeyOk,
     issuerStatus,
     computedAssetHash,

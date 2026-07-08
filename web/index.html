@@ -13,13 +13,19 @@
         <h1>Verify an AURA Evidence Package locally</h1>
         <p class="scope">
           This verifies integrity, signature and timestamped declaration. It does not adjudicate
-          ownership, authorship, licensing or infringement.
+          ownership, authorship, licensing or infringement. Everything is computed in your browser —
+          no third-party verdict is ever shown as the result.
         </p>
       </section>
 
+      <!-- Convenience load: populated when the page is opened with ?uid=…&src=…
+           (or ?manifest=…). The manifest is fetched from the shown source; you can
+           always replace it with a local file below. Verification stays local. -->
+      <section id="sourceBanner" class="source-banner hidden" aria-live="polite"></section>
+
       <section class="panel">
         <label>
-          <span>Asset file</span>
+          <span>Asset file <em>(optional — omit for a catalog claim)</em></span>
           <input id="asset" type="file" />
         </label>
         <label>
@@ -27,7 +33,7 @@
           <input id="manifest" type="file" accept="application/json,.json" />
         </label>
         <label>
-          <span>Public key PEM</span>
+          <span>Public key PEM <em>(optional if the manifest pins a Zenodo-archived key)</em></span>
           <input id="publicKey" type="file" accept=".pem,text/plain" />
         </label>
         <label>

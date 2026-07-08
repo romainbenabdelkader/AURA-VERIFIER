@@ -1,0 +1,52 @@
+{
+  "aura_version": "1.1",
+  "profile": "catalog_claim",
+  "aura_id": "aura:v1:01HZYVACBWEQMNP7RS3TVWX9YZ",
+  "aura_uid": "aura:v1:01HZYVACBWEQMNP7RS3TVWX9YZ",
+  "issuer": {
+    "id": "AUTHENTICA-PILOT",
+    "service": "AUTHENTICA",
+    "public_key_pem": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEADKCfy1OStcxIsaObypP9qpLIQ/gJxkClFSE9MrAzoLo=\n-----END PUBLIC KEY-----\n"
+  },
+  "issued_at": "2026-07-07T15:45:44.436Z",
+  "catalog_claim": {
+    "source_type": "manual_declaration",
+    "object_name": "Test dedup 001",
+    "work_type": "music",
+    "isrc": "FRXXX2600001"
+  },
+  "declarations": {
+    "legal_note": "AURA establishes technical facts and does not decide legal ownership."
+  },
+  "reference_anchor": {
+    "standard": {
+      "name": "AURA",
+      "schema_version": "1.1.0",
+      "release_tag": "v1.1.0",
+      "commit": "0027d13ab9da20c4ef71dc89c2d0c419160c55f6",
+      "schema_digest": "sha3-256:d06079ae8076c594b43b7687ca02cd3efc40e91a5bbf2131f19043a9e48a69aa",
+      "archive_doi": "10.5281/zenodo.21251473"
+    },
+    "verifier": {
+      "name": "AURA-VERIFIER",
+      "version": "1.0.1",
+      "release_tag": "v1.0.1",
+      "commit": "5b7091e5cafaa40516a83bb8599e79d2b02e271c",
+      "source_digest": "sha3-256:e024d080a9f0eb87c9c2b46b1accd5445bde0307129f1626ef95e7ac1b8f5dba",
+      "archive_doi": "10.5281/zenodo.21251287"
+    },
+    "issuer_key": {
+      "issuer_id": "AUTHENTICA-PILOT",
+      "key_id": "authentica-pilot-a5bb72ba62a58e2a",
+      "algorithm": "Ed25519",
+      "public_key_digest": "sha3-256:1192269cf0d8408e809c54291ea695b8beef448c0aeeee2b8fe12c55d9cc8a92",
+      "public_key_doi": "10.5281/zenodo.21187727"
+    }
+  },
+  "signature": {
+    "algorithm": "Ed25519",
+    "canonicalization": "RFC-8785-JCS",
+    "format": "Ed25519 raw signature, base64 encoded",
+    "value": "ZfqU/REzGehSxUjQGgCWSiqHNVl5TdZTNsDfo/vizjUL4ItRC3jIH7qLY/gQe0PLiw2xxPjnymhKrHVtf6yVBg=="
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "issuer": "AUTHENTICA-PILOT",
+  "algorithm": "Ed25519",
+  "public_key_url": "./public-key.pem",
+  "public_key_fingerprint_sha256": "d5161ce0963be16af127d5d89c2e9acae89d84ac39250122ddc4dba621de298c",
+  "public_key_fingerprint_sha3_256": "1192269cf0d8408e809c54291ea695b8beef448c0aeeee2b8fe12c55d9cc8a92",
+  "valid_from": "2026-07-03T00:00:00.000Z",
+  "status": "active",
+  "key_id": "authentica-pilot-a5bb72ba62a58e2a",
+  "zenodo_public_key_doi": "10.5281/zenodo.21187727",
+  "zenodo_spec_doi": "10.5281/zenodo.21251473"
+}

@@ -129,3 +129,55 @@ pre {
   padding: 16px;
   color: #d7deea;
 }
+
+label em {
+  color: #8b93a4;
+  font-weight: 500;
+  font-style: normal;
+}
+
+.source-banner {
+  margin-bottom: 18px;
+  border: 1px solid rgba(103, 232, 249, 0.35);
+  border-radius: 8px;
+  background: rgba(0, 203, 236, 0.06);
+  padding: 18px 20px;
+}
+
+.source-title {
+  margin: 0 0 10px;
+  color: #67e8f9;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.source-list {
+  display: grid;
+  grid-template-columns: minmax(120px, max-content) 1fr;
+  gap: 4px 16px;
+  margin: 0;
+}
+
+.source-list dt {
+  color: #9aa3b4;
+  font-weight: 700;
+}
+
+.source-list dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: #e4e9f2;
+}
+
+.source-note {
+  margin: 12px 0 0;
+  color: #b6becc;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.badges {
+  margin-top: 4px;
+}

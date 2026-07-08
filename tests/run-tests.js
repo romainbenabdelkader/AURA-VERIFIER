@@ -38,4 +38,32 @@ assert.equal(invalidSignature.status, 'invalid');
 assert.equal(invalidSignature.assetHashOk, true);
 assert.equal(invalidSignature.signatureOk, false);
 
+// Catalog claim: signed, timestamped declaration issued WITHOUT an asset file.
+// Verified with no assetBytes -> signature checked, integrity not applicable.
+const catalogClaim = await verifyAuraPackage({
+  manifestText: fs.readFileSync('tests/vectors/catalog-claim/manifest.json', 'utf8'),
+  publicKeyPem: fs.readFileSync('tests/vectors/catalog-claim/public-key.pem', 'utf8'),
+  issuerText: fs.readFileSync('tests/vectors/catalog-claim/issuer.json', 'utf8'),
+});
+assert.equal(catalogClaim.status, 'valid');
+assert.equal(catalogClaim.evidenceType, 'catalog_claim');
+assert.equal(catalogClaim.signatureOk, true);
+assert.equal(catalogClaim.integrityStatus, 'not_applicable');
+assert.equal(catalogClaim.assetHashOk, null);
+assert.equal(catalogClaim.issuerKeyPinOk, true);
+assert.equal(catalogClaim.issuerKeyOk, true);
+
+// A tampered catalog-claim signature must fail even with no asset file.
+const tamperedManifest = JSON.parse(
+  fs.readFileSync('tests/vectors/catalog-claim/manifest.json', 'utf8'),
+);
+tamperedManifest.catalog_claim.object_name = 'Tampered after signing';
+const tampered = await verifyAuraPackage({
+  manifestText: JSON.stringify(tamperedManifest),
+  publicKeyPem: fs.readFileSync('tests/vectors/catalog-claim/public-key.pem', 'utf8'),
+  issuerText: fs.readFileSync('tests/vectors/catalog-claim/issuer.json', 'utf8'),
+});
+assert.equal(tampered.status, 'invalid');
+assert.equal(tampered.signatureOk, false);
+
 console.log('AURA verifier tests passed.');

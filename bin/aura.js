@@ -5,7 +5,11 @@ import { formatHumanResult } from '../src/report.js';
 
 function usage() {
   return `Usage:
-  aura verify --asset <file> --manifest <manifest.json> --public-key <public-key.pem> [--issuer <issuer.json>] [--json]
+  aura verify --manifest <manifest.json> --public-key <public-key.pem> [--asset <file>] [--issuer <issuer.json>] [--json]
+
+  --asset is optional. Omit it to verify a catalog claim (a signed, timestamped
+  catalogue declaration issued without a supplied asset file): the signature,
+  issuer and timestamp are checked, and asset integrity is reported as N/A.
 `;
 }
 
@@ -43,12 +47,12 @@ async function main() {
 
   try {
     const args = parseArgs(rest);
-    if (!args.asset || !args.manifest || !args['public-key']) {
-      throw new Error('Missing required --asset, --manifest, or --public-key argument.');
+    if (!args.manifest || !args['public-key']) {
+      throw new Error('Missing required --manifest or --public-key argument.');
     }
 
     const result = await verifyAuraPackage({
-      assetBytes: fs.readFileSync(args.asset),
+      assetBytes: args.asset ? fs.readFileSync(args.asset) : null,
       manifestText: fs.readFileSync(args.manifest, 'utf8'),
       publicKeyPem: fs.readFileSync(args['public-key'], 'utf8'),
       issuerText: args.issuer ? fs.readFileSync(args.issuer, 'utf8') : null,
