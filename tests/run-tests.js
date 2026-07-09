@@ -38,8 +38,10 @@ assert.equal(invalidSignature.status, 'invalid');
 assert.equal(invalidSignature.assetHashOk, true);
 assert.equal(invalidSignature.signatureOk, false);
 
-// Catalog claim: signed, timestamped declaration issued WITHOUT an asset file.
-// Verified with no assetBytes -> signature checked, integrity not applicable.
+// Catalog claim: REAL signed manifest (rotated key authentica-pilot-737817cd43fa1f63),
+// issued WITHOUT an asset file. Verified with no assetBytes against the active
+// issuer.json -> signature checked, integrity not applicable. This is a v1.0
+// manifest (no reference_anchor), so there is no digest pin.
 const catalogClaim = await verifyAuraPackage({
   manifestText: fs.readFileSync('tests/vectors/catalog-claim/manifest.json', 'utf8'),
   publicKeyPem: fs.readFileSync('tests/vectors/catalog-claim/public-key.pem', 'utf8'),
@@ -50,14 +52,15 @@ assert.equal(catalogClaim.evidenceType, 'catalog_claim');
 assert.equal(catalogClaim.signatureOk, true);
 assert.equal(catalogClaim.integrityStatus, 'not_applicable');
 assert.equal(catalogClaim.assetHashOk, null);
-assert.equal(catalogClaim.issuerKeyPinOk, true);
+assert.equal(catalogClaim.issuerKeyPinOk, null); // v1.0: no reference_anchor pin
+assert.equal(catalogClaim.keyRevoked, false);
 assert.equal(catalogClaim.issuerKeyOk, true);
 
 // A tampered catalog-claim signature must fail even with no asset file.
 const tamperedManifest = JSON.parse(
   fs.readFileSync('tests/vectors/catalog-claim/manifest.json', 'utf8'),
 );
-tamperedManifest.catalog_claim.object_name = 'Tampered after signing';
+tamperedManifest.catalog_claim.title = 'Tampered after signing';
 const tampered = await verifyAuraPackage({
   manifestText: JSON.stringify(tamperedManifest),
   publicKeyPem: fs.readFileSync('tests/vectors/catalog-claim/public-key.pem', 'utf8'),
@@ -66,18 +69,18 @@ const tampered = await verifyAuraPackage({
 assert.equal(tampered.status, 'invalid');
 assert.equal(tampered.signatureOk, false);
 
-// Revoked key: a cryptographically valid signature made with a key that the
-// issuer registry lists as revoked (private_key_exposure) MUST fail — matched by
-// fingerprint, not key_id, and it is a hard invalid, not a warning.
+// Revoked key: verifying with the REAL old (compromised) public key + the active
+// issuer.json, whose revoked_keys[] lists that key. Matched by fingerprint (not
+// key_id) -> hard invalid, regardless of signature.
 const revoked = await verifyAuraPackage({
   manifestText: fs.readFileSync('tests/vectors/catalog-claim/manifest.json', 'utf8'),
-  publicKeyPem: fs.readFileSync('tests/vectors/catalog-claim/public-key.pem', 'utf8'),
-  issuerText: fs.readFileSync('tests/vectors/catalog-claim/issuer-revoked.json', 'utf8'),
+  publicKeyPem: fs.readFileSync('tests/vectors/catalog-claim/revoked-public-key.pem', 'utf8'),
+  issuerText: fs.readFileSync('tests/vectors/catalog-claim/issuer.json', 'utf8'),
 });
-assert.equal(revoked.signatureOk, true); // signature itself is valid...
-assert.equal(revoked.keyRevoked, true); // ...but the key is revoked
-assert.equal(revoked.status, 'invalid'); // so overall verification is invalid
+assert.equal(revoked.keyRevoked, true);
+assert.equal(revoked.status, 'invalid');
 assert.equal(revoked.revocation.reason, 'private_key_exposure');
+assert.equal(revoked.revocation.supersededBy, 'authentica-pilot-737817cd43fa1f63');
 assert.ok(revoked.errors.some((e) => /revoked after private_key_exposure/.test(e)));
 
 console.log('AURA verifier tests passed.');

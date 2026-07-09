@@ -50,11 +50,21 @@ function manifestUrlFrom({ uid, manifestUrl, src }) {
 }
 
 // The public key is fetched from the DOI-archived record, never from the issuer's
-// own service. Only the Zenodo API `/content` URL sends CORS headers.
-function zenodoKeyUrl(doi) {
+// own service. Only the Zenodo API `/content` URL sends CORS headers. The archived
+// file name varies per record, so resolve it from the record metadata.
+async function zenodoKeyUrl(doi) {
   const m = String(doi || '').match(/zenodo\.(\d+)/i);
   if (!m) return null;
-  return `https://zenodo.org/api/records/${m[1]}/files/public-key.pem/content`;
+  const recid = m[1];
+  try {
+    const meta = await fetch(`https://zenodo.org/api/records/${recid}`).then((r) => (r.ok ? r.json() : null));
+    const pem = (meta?.files || []).find((f) => /\.pem$/i.test(f.key || ''));
+    if (pem?.links?.self) return pem.links.self;
+    if (pem?.key) return `https://zenodo.org/api/records/${recid}/files/${encodeURIComponent(pem.key)}/content`;
+  } catch {
+    /* fall through to the conventional name */
+  }
+  return `https://zenodo.org/api/records/${recid}/files/public-key.pem/content`;
 }
 
 async function fetchText(url) {
@@ -103,7 +113,7 @@ async function autoLoad() {
   try {
     const manifest = JSON.parse(loaded.manifestText);
     const doi = manifest?.reference_anchor?.issuer_key?.public_key_doi;
-    const keyUrl = zenodoKeyUrl(doi);
+    const keyUrl = await zenodoKeyUrl(doi);
     if (keyUrl) {
       const pem = await fetchText(keyUrl);
       const pinned = manifest?.reference_anchor?.issuer_key?.public_key_digest || null;

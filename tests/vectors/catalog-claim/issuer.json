@@ -1,12 +1,1 @@
-{
-  "issuer": "AUTHENTICA-PILOT",
-  "algorithm": "Ed25519",
-  "public_key_url": "./public-key.pem",
-  "public_key_fingerprint_sha256": "d5161ce0963be16af127d5d89c2e9acae89d84ac39250122ddc4dba621de298c",
-  "public_key_fingerprint_sha3_256": "1192269cf0d8408e809c54291ea695b8beef448c0aeeee2b8fe12c55d9cc8a92",
-  "valid_from": "2026-07-03T00:00:00.000Z",
-  "status": "active",
-  "key_id": "authentica-pilot-a5bb72ba62a58e2a",
-  "zenodo_public_key_doi": "10.5281/zenodo.21187727",
-  "zenodo_spec_doi": "10.5281/zenodo.21251473"
-}
+{"issuer":"AUTHENTICA-PILOT","algorithm":"Ed25519","public_key_url":"https://lockdna.tech/.well-known/aura/public-key.pem","public_key_fingerprint_sha256":"737817cd43fa1f63bc5c4bf6d61b3cd2c33733a30a8b20303c99faaeca25957d","public_key_fingerprint_sha3_256":"b565671ed87a8455a1949c5a22cf45ce878abcda9499585d7036a52f9c23f60c","valid_from":"2026-07-08T23:29:00.000Z","status":"active","key_id":"authentica-pilot-737817cd43fa1f63","supersedes":["authentica-pilot-a5bb72ba62a58e2a"],"revoked_keys":[{"key_id":"authentica-pilot-a5bb72ba62a58e2a","status":"revoked","revoked_at":"2026-07-08T23:29:00.000Z","revocation_reason":"private_key_exposure","superseded_by":"authentica-pilot-737817cd43fa1f63","zenodo_public_key_doi":"10.5281/zenodo.21187727","public_key_fingerprint_sha256":"a5bb72ba62a58e2a31e44293c8c6f2ba4ed3da4c0294183449c6faa9c9bede83","public_key_fingerprint_sha3_256":"4b25f45389ce72ce42ee4bd7b8b0bb8570fd3486399fcd48c6c2c625b0c4658b"}],"verification_spec_url":"https://lockdna.tech/.well-known/aura/aura-verification-spec-v1.0.md","zenodo_public_key_doi":"10.5281/zenodo.21270518","zenodo_spec_doi":"10.5281/zenodo.21251473","open_source_verifier_url":"https://verify.aura-standard.org/web/"}

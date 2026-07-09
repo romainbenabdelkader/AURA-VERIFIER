@@ -9,7 +9,12 @@ function sha256Hex(bytes) {
 }
 
 function extractAssetHash(manifest) {
-  return manifest?.asset?.hash || manifest?.asset_hash || null;
+  return (
+    manifest?.asset?.hash ||
+    manifest?.asset?.asset_hash_sha3_256 ||
+    manifest?.asset_hash ||
+    null
+  );
 }
 
 // A catalog claim is a signed, timestamped catalogue declaration issued WITHOUT
