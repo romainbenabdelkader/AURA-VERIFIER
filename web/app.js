@@ -153,8 +153,10 @@ function render(result) {
       <span class="badge">Signature ${result.signatureOk ? 'valid' : 'invalid'}</span>
       <span class="badge">${escapeHtml(integrityLabel(result.integrityStatus))}</span>
       ${result.issuerKeyPinOk === null || result.issuerKeyPinOk === undefined ? '' : `<span class="badge">Key pin ${result.issuerKeyPinOk ? 'OK' : 'FAILED'}</span>`}
+      ${result.keyRevoked ? '<span class="badge badge-danger">Key REVOKED</span>' : ''}
       <span class="badge">Evidence: ${escapeHtml(result.evidenceType || 'evidence_package')}</span>
     </div>
+    ${result.keyRevoked ? `<p class="revoked-note">This signing key was revoked${result.revocation?.revokedAt ? ` on ${escapeHtml(result.revocation.revokedAt)}` : ''} after <strong>${escapeHtml(result.revocation?.reason || 'revocation')}</strong>${result.revocation?.supersededBy ? `, superseded by <strong>${escapeHtml(result.revocation.supersededBy)}</strong>` : ''}. No signature from a revoked key can be trusted.</p>` : ''}
     <pre>${escapeHtml(JSON.stringify(result, null, 2))}</pre>
   `;
 }

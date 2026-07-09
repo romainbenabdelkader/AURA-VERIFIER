@@ -181,3 +181,18 @@ label em {
 .badges {
   margin-top: 4px;
 }
+
+.badge-danger {
+  background: rgba(239, 68, 68, 0.22);
+  color: #fecaca;
+}
+
+.revoked-note {
+  margin: 6px 0 0;
+  border-left: 3px solid rgba(239, 68, 68, 0.7);
+  padding: 8px 12px;
+  color: #fecaca;
+  background: rgba(239, 68, 68, 0.08);
+  font-size: 14px;
+  line-height: 1.5;
+}

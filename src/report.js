@@ -11,6 +11,7 @@ export function formatHumanResult(result) {
     `AURA UID: ${result.auraUid || 'unknown'}`,
     `Integrity: ${result.integrityStatus || (result.assetHashOk ? 'verified' : 'unknown')}`,
     `Signature: ${result.signatureOk ? 'OK' : 'FAIL'}`,
+    `Key revoked: ${result.keyRevoked ? `YES — ${result.revocation?.reason || 'revoked'}${result.revocation?.supersededBy ? `, superseded by ${result.revocation.supersededBy}` : ''}` : 'no'}`,
     `Issuer key pin: ${result.issuerKeyPinOk === null || result.issuerKeyPinOk === undefined ? 'n/a' : result.issuerKeyPinOk ? 'OK' : 'FAIL'}`,
     `Issuer key: ${result.issuerKeyOk ? 'OK' : 'not checked'}`,
     `Issuer status: ${result.issuerStatus || 'not provided'}`,

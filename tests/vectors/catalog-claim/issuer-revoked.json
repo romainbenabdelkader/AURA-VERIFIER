@@ -1,0 +1,24 @@
+{
+  "issuer": "AUTHENTICA-PILOT",
+  "algorithm": "Ed25519",
+  "status": "active",
+  "key_id": "authentica-pilot-NEWKEYPLACEHOLDER",
+  "public_key_fingerprint_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "public_key_fingerprint_sha3_256": "1111111111111111111111111111111111111111111111111111111111111111",
+  "zenodo_public_key_doi": "10.5281/zenodo.21270518",
+  "supersedes": [
+    "authentica-pilot-d5161ce0963be16a"
+  ],
+  "revoked_keys": [
+    {
+      "key_id": "authentica-pilot-d5161ce0963be16a",
+      "status": "revoked",
+      "revoked_at": "2026-07-08T23:29:00.000Z",
+      "revocation_reason": "private_key_exposure",
+      "superseded_by": "authentica-pilot-737817cd43fa1f63",
+      "zenodo_public_key_doi": "10.5281/zenodo.21187727",
+      "public_key_fingerprint_sha256": "d5161ce0963be16af127d5d89c2e9acae89d84ac39250122ddc4dba621de298c",
+      "public_key_fingerprint_sha3_256": "1192269cf0d8408e809c54291ea695b8beef448c0aeeee2b8fe12c55d9cc8a92"
+    }
+  ]
+}

@@ -66,4 +66,18 @@ const tampered = await verifyAuraPackage({
 assert.equal(tampered.status, 'invalid');
 assert.equal(tampered.signatureOk, false);
 
+// Revoked key: a cryptographically valid signature made with a key that the
+// issuer registry lists as revoked (private_key_exposure) MUST fail — matched by
+// fingerprint, not key_id, and it is a hard invalid, not a warning.
+const revoked = await verifyAuraPackage({
+  manifestText: fs.readFileSync('tests/vectors/catalog-claim/manifest.json', 'utf8'),
+  publicKeyPem: fs.readFileSync('tests/vectors/catalog-claim/public-key.pem', 'utf8'),
+  issuerText: fs.readFileSync('tests/vectors/catalog-claim/issuer-revoked.json', 'utf8'),
+});
+assert.equal(revoked.signatureOk, true); // signature itself is valid...
+assert.equal(revoked.keyRevoked, true); // ...but the key is revoked
+assert.equal(revoked.status, 'invalid'); // so overall verification is invalid
+assert.equal(revoked.revocation.reason, 'private_key_exposure');
+assert.ok(revoked.errors.some((e) => /revoked after private_key_exposure/.test(e)));
+
 console.log('AURA verifier tests passed.');

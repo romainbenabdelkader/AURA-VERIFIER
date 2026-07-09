@@ -136,6 +136,31 @@ export async function verifyAuraPackage({
     warnings.push('No issuer.json provided; issuer status and fingerprint were not checked.');
   }
 
+  // --- Revoked / compromised issuer keys (out-of-band, from issuer.json) ---
+  // Match by public-key fingerprint (sha256 OR sha3-256/DER), never by key_id
+  // alone: a manifest need not carry a key_id, and a compromised key means no
+  // signature from it can be trusted. A match is a hard failure, not a warning.
+  let keyRevoked = false;
+  let revocation = null;
+  const revokedKeys = issuer && Array.isArray(issuer.revoked_keys) ? issuer.revoked_keys : [];
+  const revokedMatch = revokedKeys.find(
+    (rk) =>
+      (rk?.public_key_fingerprint_sha256 && rk.public_key_fingerprint_sha256 === publicKeySha256) ||
+      (rk?.public_key_fingerprint_sha3_256 && rk.public_key_fingerprint_sha3_256 === publicKeySha3),
+  );
+  if (revokedMatch) {
+    keyRevoked = true;
+    const reason = revokedMatch.revocation_reason || 'key revocation';
+    const superseded = revokedMatch.superseded_by ? `, superseded by ${revokedMatch.superseded_by}` : '';
+    revocation = {
+      keyId: revokedMatch.key_id || null,
+      revokedAt: revokedMatch.revoked_at || null,
+      reason,
+      supersededBy: revokedMatch.superseded_by || null,
+    };
+    errors.push(`Key revoked after ${reason}${superseded}.`);
+  }
+
   if (signature.canonicalization && signature.canonicalization !== 'RFC-8785-JCS') {
     warnings.push(`Unexpected canonicalization: ${signature.canonicalization}.`);
   }
@@ -156,6 +181,8 @@ export async function verifyAuraPackage({
     signatureOk,
     issuerKeyPinOk,
     issuerKeyOk,
+    keyRevoked,
+    revocation,
     issuerStatus,
     computedAssetHash,
     manifestAssetHash,
