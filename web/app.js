@@ -157,8 +157,8 @@ function render(result) {
   resultEl.className = `result status-${result.status}`;
   resultEl.innerHTML = `
     <h2>${statusTitle(result.status)}</h2>
-    <p>This result is computed locally in your browser. It verifies signature, issuer key and
-    timestamped declaration; it does not adjudicate ownership, authorship, licensing or infringement.</p>
+    <p>This result is computed locally in your browser. It verifies the signature, issuer key and,
+    when an asset file is supplied, integrity. The displayed issuance time is issuer-declared unless independent timestamp evidence is provided. It does not prove authorship, ownership, entitlement, grounding, citation or usage completeness.</p>
     <div class="badges">
       <span class="badge">Signature ${result.signatureOk ? 'valid' : 'invalid'}</span>
       <span class="badge">${escapeHtml(integrityLabel(result.integrityStatus))}</span>

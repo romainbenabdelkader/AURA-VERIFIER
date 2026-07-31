@@ -17,7 +17,7 @@ function extractAssetHash(manifest) {
   );
 }
 
-// A catalog claim is a signed, timestamped catalogue declaration issued WITHOUT
+// A catalog claim is a signed catalogue declaration with an issuer-declared issuance time, issued WITHOUT
 // a supplied asset file. It is detected from explicit markers; the integrity
 // decision below also treats "no file + no declared hash" as not-applicable.
 function isCatalogClaim(manifest) {

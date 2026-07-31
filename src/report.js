@@ -1,5 +1,5 @@
 export const PROOF_SCOPE =
-  'This verifies integrity, signature and timestamped declaration. It does not adjudicate ownership, authorship, licensing or infringement.';
+  'This verifies integrity and the issuer signature. The issuance time is issuer-declared unless independent timestamp evidence is provided. It does not prove authorship, ownership, entitlement, grounding, citation or usage completeness.';
 
 export function formatHumanResult(result) {
   const icon = result.status === 'valid' ? 'VALID' : result.status === 'warning' ? 'WARNING' : 'INVALID';

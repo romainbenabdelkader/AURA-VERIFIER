@@ -15,8 +15,10 @@ the AUTHENTICA backend, or any upload to `lockdna.tech`.
 
 Proof scope:
 
-> This verifies integrity, signature and timestamped declaration. It does not
-> adjudicate ownership, authorship, licensing or infringement.
+> This verifies integrity and the issuer signature. The issuance time is
+> issuer-declared unless independent timestamp evidence is provided. It does not
+> prove authorship, ownership, entitlement, grounding, citation or usage
+> completeness.
 
 ## CLI
 
@@ -96,4 +98,7 @@ The private key used to generate test vectors is never written to disk.
 - Never include or publish an issuer private key.
 - AURA public keys may be published and archived.
 - This verifier checks technical facts only.
-- It does not decide legal ownership, authorship, licensing, or infringement.
+- It does not prove authorship, ownership, entitlement, licensing, infringement,
+  grounding, citation or usage completeness.
+- The issuance time it displays is issuer-declared unless independent timestamp
+  evidence is provided.

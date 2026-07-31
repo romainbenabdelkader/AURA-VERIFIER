@@ -7,9 +7,10 @@ function usage() {
   return `Usage:
   aura verify --manifest <manifest.json> --public-key <public-key.pem> [--asset <file>] [--issuer <issuer.json>] [--json]
 
-  --asset is optional. Omit it to verify a catalog claim (a signed, timestamped
-  catalogue declaration issued without a supplied asset file): the signature,
-  issuer and timestamp are checked, and asset integrity is reported as N/A.
+  --asset is optional. Omit it to verify a catalog claim (a signed catalogue
+  declaration with an issuer-declared issuance time, issued without a supplied
+  asset file): the signature and issuer are checked, the issuance time is read
+  from the signed payload, and asset integrity is reported as N/A.
 `;
 }
 
