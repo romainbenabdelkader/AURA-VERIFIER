@@ -90,6 +90,11 @@ function renderBanner() {
       The public key is taken from its DOI-archived record (never from the issuer's own service) and is
       accepted only if it matches the digest pinned inside the signed manifest.
     </p>
+    <p class="source-note">
+      Remote loading sends requests to the listed hosts, which may keep ordinary access logs such as
+      your IP address, request time and requested URL. For privacy-sensitive verification, open this
+      verifier without remote-loading parameters and supply local files.
+    </p>
   `;
 }
 
