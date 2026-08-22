@@ -51,8 +51,10 @@ With issuer metadata:
 
 ## Web Verifier
 
-The web verifier runs locally in the browser. It does not upload the asset,
-manifest, or public key to any server.
+The web verifier performs cryptographic verification locally in the browser. In
+local-file mode it does not upload the asset, manifest, public key or issuer
+metadata, and it does not require an account, analytics service or verification
+telemetry.
 
 ```bash
 npm run serve:web
@@ -70,6 +72,19 @@ Drop or select:
 - AURA manifest JSON
 - public key PEM
 - optional issuer JSON
+
+When the page is opened with `?manifest=...` or `?uid=...&src=...`, the verifier
+can fetch a manifest and a manifest-pinned archived public key as a convenience.
+Those requests are optional and are not offline: the remote servers may record
+ordinary access metadata such as the requester's IP address, request time and
+requested URL. For privacy-sensitive verification, open the verifier without
+remote-loading parameters and supply the evidence and trust material as local
+files.
+
+A locally supplied `issuer.json` permits issuer-fingerprint, status and
+revocation checks without a network request. The result reflects the freshness
+of that local registry snapshot; update the snapshot separately when current
+status is required.
 
 ## Test Vectors
 
@@ -90,6 +105,10 @@ Included cases:
 - valid asset + manifest + public key
 - invalid asset against the same manifest
 - invalid signature after manifest tampering
+- valid AURA v1.1 verification through both Node and browser engines with remote
+  access blocked
+- confirmation that locally supplied evidence and trust material cause no
+  remote key or manifest resolution
 
 The private key used to generate test vectors is never written to disk.
 
@@ -102,3 +121,5 @@ The private key used to generate test vectors is never written to disk.
   grounding, citation or usage completeness.
 - The issuance time it displays is issuer-declared unless independent timestamp
   evidence is provided.
+- Remote convenience loading may create ordinary access logs at the contacted
+  servers; it is not required for locally supplied verification material.
