@@ -1,0 +1,30 @@
+{
+  "title": "AURA-VERIFIER — Independent CLI and Browser Verifier (v1.0.2)",
+  "description": "Independent open-source verifier for AURA evidence packages. Version 1.0.2 documents and regression-tests local verification through both Node and browser engines with network access blocked, optional remote resolution disclosed, and manifest and asset tampering rejected. Verification requires no account or proprietary backend when evidence and trust material are supplied locally. It verifies technical facts and declarations; it does not decide civil identity, authorship, ownership, licensing or infringement.",
+  "creators": [
+    {
+      "name": "Benabdelkader, Romain",
+      "orcid": "0009-0005-8754-088X"
+    }
+  ],
+  "version": "1.0.2",
+  "publication_date": "2026-08-23",
+  "license": "MIT",
+  "access_right": "open",
+  "keywords": [
+    "AURA",
+    "independent verification",
+    "offline verification",
+    "privacy by design",
+    "Ed25519",
+    "SHA3-256",
+    "RFC 8785"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/romainbenabdelkader/AURA-VERIFIER",
+      "relation": "isSupplementTo",
+      "scheme": "url"
+    }
+  ]
+}

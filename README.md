@@ -2,6 +2,8 @@
 
 Independent verifier for AURA Evidence Packages.
 
+Current release: v1.0.2.
+
 This project verifies AURA manifests without requiring an AUTHENTICA account,
 the AUTHENTICA backend, or any upload to `lockdna.tech`.
 
@@ -99,6 +101,16 @@ Run tests:
 ```bash
 npm test
 ```
+
+Run the reproducible local/offline verification demonstration:
+
+```bash
+npm run demo:offline
+```
+
+The demonstration blocks network access, runs both verification engines and checks
+rejection of manifest and asset tampering. See
+[`docs/OFFLINE_PRIVACY_DEMO.md`](docs/OFFLINE_PRIVACY_DEMO.md).
 
 Included cases:
 

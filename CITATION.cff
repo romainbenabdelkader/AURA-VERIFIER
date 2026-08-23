@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use AURA-VERIFIER, please cite this release."
+title: "AURA-VERIFIER — Independent CLI and Browser Verifier"
+type: software
+authors:
+  - family-names: Benabdelkader
+    given-names: Romain
+    orcid: "https://orcid.org/0009-0005-8754-088X"
+version: 1.0.2
+date-released: 2026-08-23
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.21251286
+    description: "Concept DOI for all AURA-VERIFIER versions"
+repository-code: "https://github.com/romainbenabdelkader/AURA-VERIFIER"
+url: "https://verify.aura-standard.org/web/"
+license: MIT
