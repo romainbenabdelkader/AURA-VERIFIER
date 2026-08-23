@@ -135,3 +135,11 @@ The private key used to generate test vectors is never written to disk.
   evidence is provided.
 - Remote convenience loading may create ordinary access logs at the contacted
   servers; it is not required for locally supplied verification material.
+
+## Citation And Archive
+
+Concept DOI (all versions):
+https://doi.org/10.5281/zenodo.21251286
+
+Current archived version — AURA-VERIFIER v1.0.2:
+https://doi.org/10.5281/zenodo.22063259

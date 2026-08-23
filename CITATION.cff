@@ -8,6 +8,7 @@ authors:
     orcid: "https://orcid.org/0009-0005-8754-088X"
 version: 1.0.2
 date-released: 2026-08-23
+doi: 10.5281/zenodo.22063259
 identifiers:
   - type: doi
     value: 10.5281/zenodo.21251286
