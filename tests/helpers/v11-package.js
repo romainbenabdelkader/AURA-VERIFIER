@@ -40,8 +40,8 @@ export function createV11Package(options = {}) {
       },
       verifier: {
         name: 'AURA-VERIFIER',
-        version: '1.0.2-test',
-        release_tag: 'v1.0.2-test',
+        version: '1.1.0-test',
+        release_tag: 'v1.1.0-test',
         source_digest: `sha3-256:${'1'.repeat(64)}`,
         archive_doi: 'local:test-verifier',
       },

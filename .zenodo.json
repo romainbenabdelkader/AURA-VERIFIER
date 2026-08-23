@@ -1,13 +1,13 @@
 {
-  "title": "AURA-VERIFIER — Independent CLI and Browser Verifier (v1.0.2)",
-  "description": "Independent open-source verifier for AURA evidence packages. Version 1.0.2 documents and regression-tests local verification through both Node and browser engines with network access blocked, optional remote resolution disclosed, and manifest and asset tampering rejected. Verification requires no account or proprietary backend when evidence and trust material are supplied locally. It verifies technical facts and declarations; it does not decide civil identity, authorship, ownership, licensing or infringement.",
+  "title": "AURA-VERIFIER — Independent CLI and Browser Verifier (v1.1.0)",
+  "description": "Independent open-source verifier for AURA evidence packages. Version 1.1.0 validates the optional signed TDM rights-reservation profile in both Node and browser engines, rejects non-boolean declarations and tampering, and reports syntax, signature and asset binding separately from issuer authority, discovery or receipt, and legal effect. Local verification remains available with network access blocked and no account or proprietary backend.",
   "creators": [
     {
       "name": "Benabdelkader, Romain",
       "orcid": "0009-0005-8754-088X"
     }
   ],
-  "version": "1.0.2",
+  "version": "1.1.0",
   "publication_date": "2026-08-23",
   "license": "MIT",
   "access_right": "open",
@@ -16,6 +16,7 @@
     "independent verification",
     "offline verification",
     "privacy by design",
+    "TDM rights reservation",
     "Ed25519",
     "SHA3-256",
     "RFC 8785"

@@ -2,7 +2,7 @@
 
 Independent verifier for AURA Evidence Packages.
 
-Current release: v1.0.2.
+Current release: v1.1.0.
 
 This project verifies AURA manifests without requiring an AUTHENTICA account,
 the AUTHENTICA backend, or any upload to `lockdna.tech`.
@@ -151,5 +151,5 @@ The private key used to generate test vectors is never written to disk.
 Concept DOI (all versions):
 https://doi.org/10.5281/zenodo.21251286
 
-Current archived version — AURA-VERIFIER v1.0.2:
+Latest archived version — AURA-VERIFIER v1.0.2:
 https://doi.org/10.5281/zenodo.22063259

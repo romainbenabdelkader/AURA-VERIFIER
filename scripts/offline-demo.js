@@ -39,7 +39,7 @@ try {
   console.log(JSON.stringify({
     demonstration: 'AURA local/offline privacy verification',
     auraVersion: '1.1',
-    verifierVersion: '1.0.2',
+    verifierVersion: '1.1.0',
     networkAccess: 'blocked',
     networkRequests,
     nodeEngine: {
