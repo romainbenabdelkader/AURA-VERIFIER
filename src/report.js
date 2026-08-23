@@ -20,9 +20,23 @@ export function formatHumanResult(result) {
     '',
     `Computed asset hash: ${result.computedAssetHash || 'n/a (no asset supplied)'}`,
     `Manifest asset hash: ${result.manifestAssetHash || 'none (catalog claim)'}`,
-    '',
-    `Proof scope: ${PROOF_SCOPE}`,
   ];
+
+  if (result.tdmRightsReservation?.profileClaimed) {
+    lines.push(
+      '',
+      `TDM profile syntax: ${result.tdmRightsReservation.syntaxConformant ? 'CONFORMANT' : 'INVALID'}`,
+      `TDM declaration: ${result.tdmRightsReservation.declarationValid ? 'rights reserved by issuer declaration' : 'invalid or missing'}`,
+      `TDM declaration signature-bound: ${result.tdmRightsReservation.signatureBound ? 'yes' : 'no'}`,
+      `TDM asset binding: ${result.tdmRightsReservation.assetBindingVerified ? 'verified' : 'not verified'}`,
+      `TDM profile verification: ${result.tdmRightsReservation.profileVerified ? 'VERIFIED' : 'INCOMPLETE OR INVALID'}`,
+      'Issuer authority: not assessed',
+      'Automated discoverability or receipt: not assessed',
+      'Legal effect: not assessed',
+    );
+  }
+
+  lines.push('', `Proof scope: ${PROOF_SCOPE}`);
 
   if (result.warnings.length > 0) {
     lines.push('', 'Warnings:');

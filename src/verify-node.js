@@ -2,7 +2,7 @@ import crypto from 'node:crypto';
 import { canonicalize, unsignedManifest } from './jcs.js';
 import { sha3_256_hex } from './sha3.js';
 import { base64ToBytes, pemToDer, sameBytes } from './pem.js';
-import { checkManifestStructure } from './schema-check.js';
+import { checkManifestStructure, inspectTdmRightsReservation } from './schema-check.js';
 
 function sha256Hex(bytes) {
   return crypto.createHash('sha256').update(bytes).digest('hex');
@@ -52,10 +52,12 @@ export async function verifyAuraPackage({
   const issuer = issuerText ? JSON.parse(issuerText) : null;
   const signature = manifest.signature || {};
 
-  // Structural validation against the v1.1.0 schema (no-op for v0.1/v1.0).
+  // Structural validation for published v1.0/v1.1 manifests and supported
+  // profile overlays (no-op for legacy draft and explicit test versions).
   const structure = checkManifestStructure(manifest);
   errors.push(...structure.errors);
   warnings.push(...structure.warnings);
+  const tdmReservation = inspectTdmRightsReservation(manifest);
 
   // --- Asset integrity (optional asset; fileless catalog claims are N/A) ---
   const manifestAssetHash = extractAssetHash(manifest);
@@ -198,6 +200,22 @@ export async function verifyAuraPackage({
     signatureFormat: signature.format || null,
     issuedAt: manifest.issued_at || null,
     proofScope: manifest?.proof?.scope || null,
+    tdmRightsReservation: {
+      profileClaimed: tdmReservation.claimed,
+      fieldPath: tdmReservation.fieldPath,
+      declarationValue: tdmReservation.value,
+      declarationValid: tdmReservation.declared,
+      syntaxConformant: tdmReservation.claimed ? structure.errors.length === 0 : null,
+      signatureBound: tdmReservation.claimed ? signatureOk : null,
+      assetBindingVerified: tdmReservation.claimed ? assetHashOk === true : null,
+      profileVerified:
+        tdmReservation.claimed
+          ? errors.length === 0 && signatureOk && assetHashOk === true
+          : null,
+      issuerAuthorityAssessed: false,
+      discoverabilityAssessed: false,
+      legalEffectAssessed: false,
+    },
     warnings,
     errors,
   };

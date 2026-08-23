@@ -4,6 +4,10 @@ import { verifyAuraPackage } from '../src/verify-node.js';
 import { verifyAuraPackageBrowser } from '../src/verify-web.js';
 import { sha3_256_hex } from '../src/sha3.js';
 import { createV11Package } from './helpers/v11-package.js';
+import {
+  checkManifestStructure,
+  TDM_RIGHTS_RESERVATION_PROFILE,
+} from '../src/schema-check.js';
 
 function readVector(name) {
   const dir = `tests/vectors/${name}`;
@@ -23,6 +27,11 @@ assert.equal(
   sha3_256_hex(new TextEncoder().encode('abc')),
   '3a985da74fe225b2045c172d6bd390bd855f086e3e9d525b46bfe24511431532',
 );
+
+const malformedPublishedV1 = checkManifestStructure({ aura_version: '1.0' });
+assert.ok(malformedPublishedV1.errors.some((error) => /aura_uid/.test(error)));
+assert.ok(malformedPublishedV1.errors.some((error) => /issuer/.test(error)));
+assert.ok(malformedPublishedV1.errors.some((error) => /signature/.test(error)));
 
 const valid = await verifyAuraPackage(readVector('valid'));
 assert.equal(valid.status, 'valid');
@@ -141,5 +150,89 @@ try {
 } finally {
   globalThis.fetch = originalFetch;
 }
+
+// Optional TDM rights-reservation profile: semantic constraints are checked in
+// addition to cryptographic validity. A correctly signed value of the wrong JSON
+// type must fail profile conformance even though its signature remains valid.
+const tdmValidPackage = createV11Package({
+  profile: TDM_RIGHTS_RESERVATION_PROFILE,
+  declarations: { tdm_opt_out: true },
+});
+const tdmValidNode = await verifyAuraPackage(tdmValidPackage);
+const tdmValidBrowser = await verifyAuraPackageBrowser(tdmValidPackage);
+assert.equal(tdmValidNode.status, 'valid');
+assert.equal(tdmValidNode.tdmRightsReservation.syntaxConformant, true);
+assert.equal(tdmValidNode.tdmRightsReservation.declarationValid, true);
+assert.equal(tdmValidNode.tdmRightsReservation.signatureBound, true);
+assert.equal(tdmValidNode.tdmRightsReservation.assetBindingVerified, true);
+assert.equal(tdmValidNode.tdmRightsReservation.profileVerified, true);
+assert.equal(tdmValidBrowser.status, 'valid');
+assert.equal(tdmValidBrowser.tdmRightsReservation.profileVerified, true);
+
+const tdmWrongRegistry = JSON.parse(tdmValidPackage.issuerText);
+tdmWrongRegistry.public_key_fingerprint_sha256 = '0'.repeat(64);
+const tdmWrongRegistryResult = await verifyAuraPackage({
+  ...tdmValidPackage,
+  issuerText: JSON.stringify(tdmWrongRegistry),
+});
+assert.equal(tdmWrongRegistryResult.signatureOk, true);
+assert.equal(tdmWrongRegistryResult.status, 'invalid');
+assert.equal(tdmWrongRegistryResult.tdmRightsReservation.profileVerified, false);
+
+const tdmWithoutAsset = await verifyAuraPackage({
+  ...tdmValidPackage,
+  assetBytes: null,
+});
+assert.equal(tdmWithoutAsset.status, 'warning');
+assert.equal(tdmWithoutAsset.tdmRightsReservation.syntaxConformant, true);
+assert.equal(tdmWithoutAsset.tdmRightsReservation.assetBindingVerified, false);
+assert.equal(tdmWithoutAsset.tdmRightsReservation.profileVerified, false);
+
+const tdmModifiedAsset = await verifyAuraPackage({
+  ...tdmValidPackage,
+  assetBytes: Buffer.from('Different TDM profile asset\n', 'utf8'),
+});
+assert.equal(tdmModifiedAsset.status, 'invalid');
+assert.equal(tdmModifiedAsset.signatureOk, true);
+assert.equal(tdmModifiedAsset.tdmRightsReservation.assetBindingVerified, false);
+assert.equal(tdmModifiedAsset.tdmRightsReservation.profileVerified, false);
+
+const tdmTamperedManifest = structuredClone(tdmValidPackage.manifest);
+tdmTamperedManifest.declarations.tdm_opt_out = false;
+const tdmTampered = await verifyAuraPackage({
+  ...tdmValidPackage,
+  manifestText: JSON.stringify(tdmTamperedManifest),
+});
+assert.equal(tdmTampered.status, 'invalid');
+assert.equal(tdmTampered.signatureOk, false);
+assert.equal(tdmTampered.tdmRightsReservation.profileVerified, false);
+
+for (const invalidValue of ['true', 1, null, false, { reserved: true }]) {
+  const invalidPackage = createV11Package({
+    profile: TDM_RIGHTS_RESERVATION_PROFILE,
+    declarations: { tdm_opt_out: invalidValue },
+  });
+  const nodeResult = await verifyAuraPackage(invalidPackage);
+  const browserResult = await verifyAuraPackageBrowser(invalidPackage);
+
+  assert.equal(nodeResult.signatureOk, true);
+  assert.equal(nodeResult.status, 'invalid');
+  assert.equal(nodeResult.tdmRightsReservation.syntaxConformant, false);
+  assert.equal(nodeResult.tdmRightsReservation.profileVerified, false);
+  assert.equal(browserResult.signatureOk, true);
+  assert.equal(browserResult.status, 'invalid');
+  assert.equal(browserResult.tdmRightsReservation.syntaxConformant, false);
+  assert.equal(browserResult.tdmRightsReservation.profileVerified, false);
+}
+
+const missingTdmPackage = createV11Package({
+  profile: TDM_RIGHTS_RESERVATION_PROFILE,
+  declarations: { note: 'No TDM declaration.' },
+});
+const missingTdm = await verifyAuraPackage(missingTdmPackage);
+assert.equal(missingTdm.signatureOk, true);
+assert.equal(missingTdm.status, 'invalid');
+assert.equal(missingTdm.tdmRightsReservation.syntaxConformant, false);
+assert.equal(missingTdm.tdmRightsReservation.profileVerified, false);
 
 console.log('AURA verifier tests passed.');
