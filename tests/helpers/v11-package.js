@@ -2,7 +2,7 @@ import nodeCrypto from 'node:crypto';
 import { canonicalize } from '../../src/jcs.js';
 import { sha3_256_hex } from '../../src/sha3.js';
 
-export function createV11Package() {
+export function createV11Package(options = {}) {
   const assetBytes = Buffer.from('AURA v1.1 local verification regression\n', 'utf8');
   const { publicKey, privateKey } = nodeCrypto.generateKeyPairSync('ed25519');
   const publicKeyPem = publicKey.export({ type: 'spki', format: 'pem' }).toString();
@@ -12,7 +12,7 @@ export function createV11Package() {
 
   const unsigned = {
     aura_version: '1.1',
-    profile: 'AURA_EVIDENCE_PACKAGE',
+    profile: options.profile || 'AURA_EVIDENCE_PACKAGE',
     aura_uid: 'aura:v1:01ARZ3NDEKTSV4RRFFQ69G5FAV',
     issuer: {
       id: 'AURA-LOCAL-TEST',
@@ -27,7 +27,7 @@ export function createV11Package() {
     proof: {
       scope: 'asset_integrity_signed_declaration',
     },
-    declarations: {
+    declarations: options.declarations || {
       note: 'Local regression fixture generated in memory.',
     },
     reference_anchor: {

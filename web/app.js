@@ -158,6 +158,16 @@ function integrityLabel(s) {
 }
 
 function render(result) {
+  const tdm = result.tdmRightsReservation;
+  const tdmBlock = tdm?.profileClaimed
+    ? `<div class="profile-note">
+        <p><strong>TDM rights-reservation profile:</strong>
+        ${tdm.profileVerified ? 'verified' : 'incomplete or invalid'}.</p>
+        <p>The verifier reports declaration syntax, signature and asset binding separately.
+        Issuer authority, automated discoverability or receipt, and legal effect
+        were not assessed.</p>
+      </div>`
+    : '';
   resultEl.classList.remove('hidden');
   resultEl.className = `result status-${result.status}`;
   resultEl.innerHTML = `
@@ -172,6 +182,7 @@ function render(result) {
       <span class="badge">Evidence: ${escapeHtml(result.evidenceType || 'evidence_package')}</span>
     </div>
     ${result.keyRevoked ? `<p class="revoked-note">This signing key was revoked${result.revocation?.revokedAt ? ` on ${escapeHtml(result.revocation.revokedAt)}` : ''} after <strong>${escapeHtml(result.revocation?.reason || 'revocation')}</strong>${result.revocation?.supersededBy ? `, superseded by <strong>${escapeHtml(result.revocation.supersededBy)}</strong>` : ''}. No signature from a revoked key can be trusted.</p>` : ''}
+    ${tdmBlock}
     <pre>${escapeHtml(JSON.stringify(result, null, 2))}</pre>
   `;
 }

@@ -14,6 +14,8 @@ the AUTHENTICA backend, or any upload to `lockdna.tech`.
 - Ed25519 signature
 - issuer public key fingerprint, when `issuer.json` is provided
 - issuer status, when `issuer.json` is provided
+- syntax and signed declaration semantics for the optional
+  `AURA_TDM_RIGHTS_RESERVATION_V1` profile
 
 Proof scope:
 
@@ -121,6 +123,14 @@ Included cases:
   access blocked
 - confirmation that locally supplied evidence and trust material cause no
   remote key or manifest resolution
+- acceptance of a correctly signed, asset-bound TDM rights-reservation profile
+- rejection of signed TDM profile claims whose declaration is missing or is not
+  exactly the JSON boolean `true`
+
+For the optional TDM rights-reservation profile, the verifier reports profile
+conformance separately from issuer authority, automated discoverability or
+receipt, and legal effect. Those matters are not established by cryptographic
+verification.
 
 The private key used to generate test vectors is never written to disk.
 
