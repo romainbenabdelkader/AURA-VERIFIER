@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import './conformance.js';
 import fs from 'node:fs';
 import { verifyAuraPackage } from '../src/verify-node.js';
 import { verifyAuraPackageBrowser } from '../src/verify-web.js';

@@ -11,8 +11,7 @@
 // explicit test-vector versions are passed through for backwards-compatible
 // cryptographic checks.
 
-const AURA_UID_RE = /^aura:v1:[0-9A-HJKMNP-TV-Z]{26}$/;
-const DIGEST_RE = /^sha3-256:[0-9a-f]{64}$/;
+import { checkBaseSchema } from './base-schema-check.js';
 const ASSET_HASH_RE = /^[0-9a-f]{64}$/;
 
 export const TDM_RIGHTS_RESERVATION_PROFILE = 'AURA_TDM_RIGHTS_RESERVATION_V1';
@@ -34,7 +33,8 @@ export function inspectTdmRightsReservation(manifest) {
 }
 
 export function checkManifestStructure(manifest) {
-  const errors = [];
+  const baseSchema = checkBaseSchema(manifest);
+  const errors = [...baseSchema.errors];
   const warnings = [];
 
   if (!manifest || typeof manifest !== 'object' || Array.isArray(manifest)) {
@@ -46,50 +46,6 @@ export function checkManifestStructure(manifest) {
   // explicit test-vector versions remain accepted for cryptographic checks.
   if (manifest.aura_version !== '1.0' && manifest.aura_version !== '1.1') {
     return { errors, warnings };
-  }
-
-  const required = [
-    'aura_version',
-    'aura_uid',
-    'issuer',
-    'issued_at',
-    'signature',
-  ];
-  if (manifest.aura_version === '1.1') required.push('reference_anchor');
-  for (const key of required) {
-    if (!(key in manifest)) {
-      errors.push(`v${manifest.aura_version} manifest is missing required field: ${key}.`);
-    }
-  }
-
-  if (manifest.aura_uid && !AURA_UID_RE.test(manifest.aura_uid)) {
-    errors.push('aura_uid does not match the v1 pattern aura:v1:<26 Crockford-base32 chars>.');
-  }
-
-  const signature = manifest.signature;
-  if (signature && typeof signature === 'object') {
-    if (signature.algorithm && signature.algorithm !== 'Ed25519') {
-      errors.push(`Unsupported signature algorithm: ${signature.algorithm} (schema requires Ed25519).`);
-    }
-    if (signature.canonicalization && signature.canonicalization !== 'RFC-8785-JCS') {
-      errors.push(`Unexpected canonicalization: ${signature.canonicalization} (schema requires RFC-8785-JCS).`);
-    }
-  }
-
-  const ra = manifest.reference_anchor;
-  if (manifest.aura_version === '1.1' && isObject(ra)) {
-    for (const block of ['standard', 'verifier', 'issuer_key']) {
-      if (!(block in ra)) errors.push(`reference_anchor is missing required block: ${block}.`);
-    }
-    const ik = ra.issuer_key;
-    if (ik && typeof ik === 'object') {
-      if (ik.public_key_digest && !DIGEST_RE.test(ik.public_key_digest)) {
-        errors.push('reference_anchor.issuer_key.public_key_digest is not a valid sha3-256:<64 hex> digest.');
-      }
-      if (ik.algorithm && ik.algorithm !== 'Ed25519') {
-        errors.push('reference_anchor.issuer_key.algorithm must be Ed25519.');
-      }
-    }
   }
 
   const tdm = inspectTdmRightsReservation(manifest);

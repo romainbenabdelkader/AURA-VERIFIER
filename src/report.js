@@ -7,6 +7,8 @@ export function formatHumanResult(result) {
     `AURA verification result: ${icon}`,
     '',
     `Status: ${result.status}`,
+    `Base schema: ${result.schemaValidation?.status || 'not_checked'}`,
+    'Archive resolution: not checked; issuer identity: not assessed',
     `Evidence type: ${result.evidenceType || 'evidence_package'}`,
     `AURA UID: ${result.auraUid || 'unknown'}`,
     `Integrity: ${result.integrityStatus || (result.assetHashOk ? 'verified' : 'unknown')}`,

@@ -176,6 +176,7 @@ function render(result) {
     when an asset file is supplied, integrity. The displayed issuance time is issuer-declared unless independent timestamp evidence is provided. It does not prove authorship, ownership, entitlement, grounding, citation or usage completeness.</p>
     <div class="badges">
       <span class="badge">Signature ${result.signatureOk ? 'valid' : 'invalid'}</span>
+      <span class="badge">Base schema ${escapeHtml(result.schemaValidation?.status || 'not_checked')}</span>
       <span class="badge">${escapeHtml(integrityLabel(result.integrityStatus))}</span>
       ${result.issuerKeyPinOk === null || result.issuerKeyPinOk === undefined ? '' : `<span class="badge">Key pin ${result.issuerKeyPinOk ? 'OK' : 'FAILED'}</span>`}
       ${result.keyRevoked ? '<span class="badge badge-danger">Key REVOKED</span>' : ''}
