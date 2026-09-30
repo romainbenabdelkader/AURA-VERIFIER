@@ -55,6 +55,7 @@ export function createV11Package(options = {}) {
     },
   };
 
+  options.beforeSign?.(unsigned);
   const signature = nodeCrypto.sign(null, Buffer.from(canonicalize(unsigned)), privateKey);
   const manifest = {
     ...unsigned,

@@ -1,5 +1,7 @@
 # AURA Verifier MVP
 
+Integrator instructions and limits: [INTEGRATORS.md](INTEGRATORS.md).
+
 Independent verifier for AURA Evidence Packages.
 
 Current release: v1.1.0.
