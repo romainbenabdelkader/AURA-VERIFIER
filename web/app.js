@@ -184,6 +184,8 @@ function render(result) {
     </div>
     ${result.keyRevoked ? `<p class="revoked-note">This signing key was revoked${result.revocation?.revokedAt ? ` on ${escapeHtml(result.revocation.revokedAt)}` : ''} after <strong>${escapeHtml(result.revocation?.reason || 'revocation')}</strong>${result.revocation?.supersededBy ? `, superseded by <strong>${escapeHtml(result.revocation.supersededBy)}</strong>` : ''}. No signature from a revoked key can be trusted.</p>` : ''}
     ${tdmBlock}
+    <p>Archive resolution: not checked. Schema validity does not confirm public archiving.</p>
+    ${(result.archiveReferences?.warnings || []).map(warning => `<p class="archive-notice">${escapeHtml(warning)}</p>`).join('')}
     <pre>${escapeHtml(JSON.stringify(result, null, 2))}</pre>
   `;
 }

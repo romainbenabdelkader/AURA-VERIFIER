@@ -1,5 +1,6 @@
 import { canonicalize, unsignedManifest } from './jcs.js';
 import { checkBaseSchema } from './base-schema-check.js';
+import { inspectArchiveReferences } from './archive-check.js';
 import { sha3_256_hex } from './sha3.js';
 import { base64ToBytes, pemToDer, sameBytes } from './pem.js';
 import { checkManifestStructure, inspectTdmRightsReservation } from './schema-check.js';
@@ -182,6 +183,7 @@ export async function verifyAuraPackageBrowser({
     status,
     schemaValidation: checkBaseSchema(manifest),
     archiveResolution: 'not_checked',
+    archiveReferences: inspectArchiveReferences(manifest),
     issuerIdentity: 'not_assessed',
     valid: status === 'valid',
     evidenceType: catalogClaim ? 'catalog_claim' : 'evidence_package',

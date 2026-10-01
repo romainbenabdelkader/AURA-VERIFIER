@@ -39,6 +39,10 @@ Read the dimensions independently:
 - `issuerKeyPinOk`: supplied public key compared with the signed SHA3-256 pin.
 - `archiveResolution`: not_checked. Presence of a DOI is not proof it resolves,
   or that its archived bytes match the declared digest.
+- `archiveReferences`: syntax-only inspection, with separate notices for URNs
+  and other non-bare-DOI references. `doi_like` does not establish registration,
+  resolution or byte integrity. Notices do not change schema or cryptographic
+  validity; remote archive verification remains outside this offline check.
 - `issuerIdentity`: not_assessed. Supplied issuer.json is metadata, not
   independent evidence that the signer represents a named organization.
 

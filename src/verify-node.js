@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import { inspectArchiveReferences } from './archive-check.js';
 import { checkBaseSchema } from './base-schema-check.js';
 import { canonicalize, unsignedManifest } from './jcs.js';
 import { sha3_256_hex } from './sha3.js';
@@ -183,6 +184,7 @@ export async function verifyAuraPackage({
     status,
     schemaValidation: checkBaseSchema(manifest),
     archiveResolution: 'not_checked',
+    archiveReferences: inspectArchiveReferences(manifest),
     issuerIdentity: 'not_assessed',
     valid: status === 'valid',
     evidenceType: catalogClaim ? 'catalog_claim' : 'evidence_package',

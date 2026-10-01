@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { inspectArchiveReferences } from '../src/archive-check.js';
 import { checkBaseSchema } from '../src/base-schema-check.js';
 import { verifyAuraPackage } from '../src/verify-node.js';
 import { verifyAuraPackageBrowser } from '../src/verify-web.js';
@@ -49,3 +50,15 @@ const missingSignatureField = createV11Package().manifest;
 delete missingSignatureField.signature.canonicalization;
 assert.equal(checkBaseSchema(missingSignatureField).status, 'fail');
 console.log('Conformance regression tests passed (Node and WebCrypto).');
+for (const [value, syntax] of [['urn:example:key', 'not_doi'], ['10.5281/zenodo.22063259', 'doi_like'], ['https://doi.org/10.5281/zenodo.22063259', 'not_doi']]) {
+  const pkg = createV11Package({ beforeSign(m) { m.reference_anchor.issuer_key.public_key_doi = value; } });
+  for (const verify of [verifyAuraPackage, verifyAuraPackageBrowser]) {
+    const result = await verify(pkg);
+    assert.equal(result.schemaValidation.status, 'pass');
+    assert.equal(result.signatureOk, true);
+    assert.equal(result.archiveReferences.references[2].syntax, syntax);
+    assert.equal(result.archiveReferences.status, 'not_checked');
+    assert.equal(result.archiveReferences.warnings.some(w => w.includes('issuer_key')), syntax === 'not_doi');
+  }
+}
+assert.deepEqual(inspectArchiveReferences({}).references, []);

@@ -45,6 +45,11 @@ export function formatHumanResult(result) {
     for (const warning of result.warnings) lines.push(`- ${warning}`);
   }
 
+  if (result.archiveReferences?.warnings.length) {
+    lines.push('', 'Archive notices (not schema errors):');
+    for (const warning of result.archiveReferences.warnings) lines.push(`- ${warning}`);
+  }
+
   if (result.errors.length > 0) {
     lines.push('', 'Errors:');
     for (const error of result.errors) lines.push(`- ${error}`);
