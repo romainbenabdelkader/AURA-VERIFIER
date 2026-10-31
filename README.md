@@ -26,6 +26,27 @@ Proof scope:
 > prove authorship, ownership, entitlement, grounding, citation or usage
 > completeness.
 
+## Experimental detached RFC 3161 timestamp (Node CLI only)
+
+This optional extension uses a **locally installed OpenSSL** binary and is **not**
+implemented in the JavaScript-only browser verifier. The base AURA verifier
+continues to run offline in both Node and WebCrypto.
+
+The timestamp digest is SHA-256 of the RFC 8785 JCS canonical representation
+of the **complete signed manifest**, including its signature object. Use
+`node bin/aura.js timestamp-request --manifest manifest.json --out manifest.tsq`
+to generate a query. Do NOT use `openssl ts -query -data manifest.json`:
+that hashes noncanonical source bytes.
+
+A separate SHA3-256 digest of that same canonical object is reported for
+reference. It is NOT the same hash as the TSA's SHA-256 messageImprint.
+The published v1.1 `prior_evidence.manifest_hash` schema does not yet
+define its hash preimage, so this is a candidate mapping, not a normative
+equivalence. No eIDAS qualification, revocation or TSA policy suitability
+is inferred by this extension.
+
+See [RFC 3161 timestamp guide](docs/RFC3161_TIMESTAMP.md).
+
 ## CLI
 
 ```bash

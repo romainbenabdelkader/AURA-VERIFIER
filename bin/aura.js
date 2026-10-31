@@ -2,15 +2,16 @@
 import fs from 'node:fs';
 import { verifyAuraPackage } from '../src/verify-node.js';
 import { formatHumanResult } from '../src/report.js';
-import { verifyRfc3161Timestamp } from '../src/verify-timestamp-node.js';
+import { createRfc3161TimestampQuery, verifyRfc3161Timestamp } from '../src/verify-timestamp-node.js';
 
 function usage() {
   return `Usage:
+  aura timestamp-request --manifest <manifest.json> --out <request.tsq>
   aura verify --manifest <manifest.json> --public-key <public-key.pem> [--asset <file>] [--issuer <issuer.json>] [--json]
 
   Optional detached RFC 3161: --timestamp-response <response.tsr> --tsa-ca <trusted-root.pem>
     [--tsa-untrusted <tsa-chain.pem>] [--timestamp-query <original-request.tsq>]
-    The response must cover the exact bytes of the FULL signed manifest.
+    The response must cover SHA-256(JCS(full signed manifest)), including its Ed25519 signature.
 
   --asset is optional. Omit it to verify a catalog claim (a signed catalogue
   declaration with an issuer-declared issuance time, issued without a supplied
@@ -45,7 +46,7 @@ function parseArgs(argv) {
 async function main() {
   const [command, ...rest] = process.argv.slice(2);
 
-  if (command !== 'verify') {
+  if (command !== 'verify' && command !== 'timestamp-request') {
     console.error(usage());
     process.exitCode = 2;
     return;
@@ -53,6 +54,12 @@ async function main() {
 
   try {
     const args = parseArgs(rest);
+    if (command === 'timestamp-request') {
+      if (!args.manifest || !args.out) throw new Error('timestamp-request requires --manifest and --out.');
+      const request = createRfc3161TimestampQuery({ manifestPath: args.manifest, requestPath: args.out });
+      console.log(JSON.stringify(request, null, 2));
+      return;
+    }
     if (!args.manifest || !args['public-key']) {
       throw new Error('Missing required --manifest or --public-key argument.');
     }
@@ -87,7 +94,8 @@ async function main() {
       console.log(JSON.stringify(result, null, 2));
     } else {
       console.log(formatHumanResult(result));
-      console.log('\\nRFC 3161 timestamp: ' + result.timestamp.status);
+      console.log('');
+      console.log('RFC 3161 timestamp: ' + result.timestamp.status);
       if (result.timestamp.genTime) console.log('TSA genTime: ' + result.timestamp.genTime);
       console.log('AURA-Timestamped technical checks: ' + result.auraTimestampedChecks);
       console.log('Qualified eIDAS status: not assessed');
