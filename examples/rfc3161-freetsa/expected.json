@@ -1,0 +1,23 @@
+{
+  "assetFile": "asset.txt",
+  "canonicalFile": "manifest.canonical.json",
+  "queryFile": "manifest.tsq",
+  "responseFile": "manifest.tsr",
+  "genTime": "2026-10-31T12:46:49.000Z",
+  "tsaSerial": "0x0999C8BC",
+  "tsaPolicy": "1.2.3.4.1",
+  "nonce": "0x4A22EE1AA1758B71",
+  "timestampImprintSha256": "7e6e47d9ae402ae9878e078f4420f8d15e9385be676eebe23d3fa0f4bc973553",
+  "manifestHashSha3_256": "sha3-256:b2b40f936f74baafadd9828e1ee5e33ba2cfb9c26b08b13b6c20952886e35181",
+  "filesSha256": {
+    "manifest.json": "0e58ca3fee17b6b333248a0d2e21471777afc3efe5d3e530b14070ed022064c5",
+    "issuer.json": "36f06b91352203524e0ab3554a2823cc2cb4b7372979da71af4d78db4b8fcdf4",
+    "public-key.pem": "5754d30ebc14bc3b622425215524d6ce4d8b7ece5de8d8b85c023997171586c1",
+    "asset.txt": "657fbbfeda1ccda0f149e55d3f4d14ed52469ba422fd71f6d792c8ae3d9bfceb",
+    "manifest.canonical.json": "7e6e47d9ae402ae9878e078f4420f8d15e9385be676eebe23d3fa0f4bc973553",
+    "manifest.tsq": "b85030bf1b9ca24c5ca5a2901f001a7c7505b9eda1659b431096268768611470",
+    "manifest.tsr": "f26bb8c611d4ae7fd6a755818b014cc9ea2c50762de61b11cdacec07e7c24c14",
+    "cacert.pem": "2151b61137ffa86bf664691ba67e7da0b19f98c758e3d228d5d8ebf27e044438",
+    "tsa.crt": "8bfb0305bb64e2571ca507552ef3245cb1c2fee8728e0ff8689225081ea13467"
+  }
+}

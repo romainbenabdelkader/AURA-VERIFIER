@@ -26,6 +26,40 @@ Proof scope:
 > prove authorship, ownership, entitlement, grounding, citation or usage
 > completeness.
 
+## Detached RFC 3161 timestamp (Node CLI only)
+
+This optional extension uses a **locally installed OpenSSL** binary and is **not**
+implemented in the JavaScript-only browser verifier. The base AURA verifier
+continues to run offline in both Node and WebCrypto.
+
+The timestamp digest is SHA-256 of the RFC 8785 JCS canonical representation
+of the **complete signed manifest**, including its signature object. Use
+`node bin/aura.js timestamp-request --manifest manifest.json --out manifest.tsq`
+to generate a query. Do NOT use `openssl ts -query -data manifest.json`:
+that hashes noncanonical source bytes.
+
+A separate SHA3-256 digest of that same canonical object is reported for
+reference. It is NOT the same hash as the TSA's SHA-256 messageImprint.
+The published v1.1 `prior_evidence.manifest_hash` schema does not yet
+define its hash preimage, so this is a candidate mapping, not a normative
+equivalence. No eIDAS qualification, revocation or TSA policy suitability
+is inferred by this extension.
+
+Reproduce verification of the committed, **real FreeTSA response over fictional
+data**, without an account or network request:
+
+```sh
+node scripts/verify-timestamp-example.js
+```
+
+Requires Node.js 20+ and OpenSSL 3.x on PATH. A report with `status: "passed"`
+and exit code 0 confirms the documented technical checks relative to the
+supplied FreeTSA root. It is **not qualified eIDAS timestamp certification**.
+The test issuer is fictional and must not be used in production.
+
+See the [public vector and expected results](examples/rfc3161-freetsa/README.md)
+and [RFC 3161 timestamp guide](docs/RFC3161_TIMESTAMP.md).
+
 ## CLI
 
 ```bash

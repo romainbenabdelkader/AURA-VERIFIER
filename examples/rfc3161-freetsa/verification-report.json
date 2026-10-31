@@ -1,0 +1,262 @@
+{
+  "node": "v24.19.0",
+  "checkedAt": "2026-10-31T13:18:59.380Z",
+  "sourceSha256": {
+    "src/archive-check.js": "5d1499fd0713142ef4d4818ecf7e9863da92c62f7d8b6c787cad417896e70c58",
+    "src/base-schema-check.js": "58fa6f60923945e0604d99ca62de46b77152605ade03bad21f28675c3c673913",
+    "src/base-schemas.js": "f7872226d79015174f5bb3bce4f8670893b1782bb066d92a28653b23fc7600f6",
+    "src/jcs.js": "ea3f2432575a864a023ef837f699b4ce308a997f7ebf644624229286addd6acb",
+    "src/manifest-digest.js": "e9e8d420a8e6ed1eaf8906d4b4190682ae8c0be86913a0f4b64064448410b442",
+    "src/pem.js": "b2e368966fdcf14210a48408588444579f0019deb8b0b729195b240aaab3bdd3",
+    "src/report.js": "918aefd4812f3c4515bef8a07183e34f274f1ed97b68aa3d6de3a711d6cd950b",
+    "src/schema-check.js": "76195e5e9b8f4ad82e1d03eb4d19495e19a3cb43f3f48a88756932fc8a1ec85e",
+    "src/sha3.js": "72b12a62fe31cdbefe6164b2bae17907c919bbae8d2ca06a3eb4ff92ad092cad",
+    "src/verify-node.js": "5225700c301cad79d7b84f1dec6a45f5e9cbe35871e3da85ffa237584780c8fd",
+    "src/verify-timestamp-node.js": "78525986e93c6965d66ef1e08df186ab831b78d5a4511e4a4ec54ac1daffd24a",
+    "src/verify-web.js": "4c658a6db6dd52c87882d405f07fefdedf1e87c6d6baec49bab043eda3f1bcb4",
+    "bin/aura.js": "a6cc1bfe723f8210588b07f634af951a136ba3f961a6078b220ac14f6834ab70"
+  },
+  "evidenceSha256": {
+    "manifest.json": "0e58ca3fee17b6b333248a0d2e21471777afc3efe5d3e530b14070ed022064c5",
+    "issuer.json": "36f06b91352203524e0ab3554a2823cc2cb4b7372979da71af4d78db4b8fcdf4",
+    "public-key.pem": "5754d30ebc14bc3b622425215524d6ce4d8b7ece5de8d8b85c023997171586c1",
+    "asset.txt": "657fbbfeda1ccda0f149e55d3f4d14ed52469ba422fd71f6d792c8ae3d9bfceb",
+    "manifest.canonical.json": "7e6e47d9ae402ae9878e078f4420f8d15e9385be676eebe23d3fa0f4bc973553",
+    "manifest.tsq": "b85030bf1b9ca24c5ca5a2901f001a7c7505b9eda1659b431096268768611470",
+    "manifest.tsr": "f26bb8c611d4ae7fd6a755818b014cc9ea2c50762de61b11cdacec07e7c24c14",
+    "cacert.pem": "2151b61137ffa86bf664691ba67e7da0b19f98c758e3d228d5d8ebf27e044438",
+    "tsa.crt": "8bfb0305bb64e2571ca507552ef3245cb1c2fee8728e0ff8689225081ea13467"
+  },
+  "commands": [
+    {
+      "command": "openssl",
+      "args": [
+        "version"
+      ],
+      "exitCode": 0,
+      "stdout": "OpenSSL 3.6.2 7 Apr 2026 (Library: OpenSSL 3.6.2 7 Apr 2026)\n",
+      "stderr": "",
+      "error": null
+    },
+    {
+      "command": "openssl",
+      "args": [
+        "ts",
+        "-query",
+        "-in",
+        "$EVIDENCE/manifest.tsq",
+        "-text"
+      ],
+      "exitCode": 0,
+      "stdout": "Version: 1\nHash Algorithm: sha256\nMessage data:\n    0000 - 7e 6e 47 d9 ae 40 2a e9-87 8e 07 8f 44 20 f8 d1   ~nG..@*.....D ..\n    0010 - 5e 93 85 be 67 6e eb e2-3d 3f a0 f4 bc 97 35 53   ^...gn..=?....5S\nPolicy OID: unspecified\nNonce: 0x4A22EE1AA1758B71\nCertificate required: yes\nExtensions:\n",
+      "stderr": "Using configuration from /dev/null\n",
+      "error": null
+    },
+    {
+      "command": "openssl",
+      "args": [
+        "ts",
+        "-reply",
+        "-in",
+        "$EVIDENCE/manifest.tsr",
+        "-text"
+      ],
+      "exitCode": 0,
+      "stdout": "Status info:\nStatus: Granted.\nStatus description: unspecified\nFailure info: unspecified\n\nTST info:\nVersion: 1\nPolicy OID: 1.2.3.4.1\nHash Algorithm: sha256\nMessage data:\n    0000 - 7e 6e 47 d9 ae 40 2a e9-87 8e 07 8f 44 20 f8 d1   ~nG..@*.....D ..\n    0010 - 5e 93 85 be 67 6e eb e2-3d 3f a0 f4 bc 97 35 53   ^...gn..=?....5S\nSerial number: 0x0999C8BC\nTime stamp: Oct 31 12:46:49 2026 GMT\nAccuracy: unspecified\nOrdering: yes\nNonce: 0x4A22EE1AA1758B71\nTSA: DirName:/O=Free TSA/OU=TSA/description=This certificate digitally signs documents and time stamp requests made using the freetsa.org online services/CN=www.freetsa.org/emailAddress=busilezas@mailbox.org/L=Wuerzburg/C=DE/ST=Bayern\nExtensions:\n",
+      "stderr": "Using configuration from /dev/null\n",
+      "error": null
+    },
+    {
+      "command": "openssl",
+      "args": [
+        "x509",
+        "-in",
+        "$EVIDENCE/cacert.pem",
+        "-noout",
+        "-subject",
+        "-issuer",
+        "-dates",
+        "-fingerprint",
+        "-sha256"
+      ],
+      "exitCode": 0,
+      "stdout": "subject=O=Free TSA, OU=Root CA, CN=www.freetsa.org, emailAddress=busilezas@gmail.com, L=Wuerzburg, ST=Bayern, C=DE\nissuer=O=Free TSA, OU=Root CA, CN=www.freetsa.org, emailAddress=busilezas@gmail.com, L=Wuerzburg, ST=Bayern, C=DE\nnotBefore=Mar 13 01:52:13 2016 GMT\nnotAfter=Mar  7 01:52:13 2041 GMT\nsha256 Fingerprint=A6:37:9E:7C:EC:C0:5F:AA:3C:BF:07:60:13:D7:45:E3:27:BB:BA:A3:8C:0B:9A:F2:24:69:D4:70:1D:18:AA:BC\n",
+      "stderr": "",
+      "error": null
+    },
+    {
+      "command": "openssl",
+      "args": [
+        "x509",
+        "-in",
+        "$EVIDENCE/tsa.crt",
+        "-noout",
+        "-subject",
+        "-issuer",
+        "-dates",
+        "-fingerprint",
+        "-sha256"
+      ],
+      "exitCode": 0,
+      "stdout": "subject=O=Free TSA, OU=TSA, description=This certificate digitally signs documents and time stamp requests made using the freetsa.org online services, CN=www.freetsa.org, emailAddress=busilezas@mailbox.org, L=Wuerzburg, C=DE, ST=Bayern\nissuer=O=Free TSA, OU=Root CA, CN=www.freetsa.org, emailAddress=busilezas@gmail.com, L=Wuerzburg, ST=Bayern, C=DE\nnotBefore=Feb 15 19:44:22 2026 GMT\nnotAfter=Feb  2 19:44:22 2040 GMT\nsha256 Fingerprint=32:E8:41:A9:5C:C1:16:41:01:FF:DE:41:29:8E:F2:FC:75:C1:C4:37:2E:F0:95:E8:8A:6B:BD:47:DF:B1:91:FC\n",
+      "stderr": "",
+      "error": null
+    },
+    {
+      "command": "openssl",
+      "args": [
+        "verify",
+        "-purpose",
+        "timestampsign",
+        "-show_chain",
+        "-CAfile",
+        "$EVIDENCE/cacert.pem",
+        "$EVIDENCE/tsa.crt"
+      ],
+      "exitCode": 0,
+      "stdout": "$EVIDENCE/tsa.crt: OK\nChain:\ndepth=0: O=Free TSA, OU=TSA, description=This certificate digitally signs documents and time stamp requests made using the freetsa.org online services, CN=www.freetsa.org, emailAddress=busilezas@mailbox.org, L=Wuerzburg, C=DE, ST=Bayern (untrusted)\ndepth=1: O=Free TSA, OU=Root CA, CN=www.freetsa.org, emailAddress=busilezas@gmail.com, L=Wuerzburg, ST=Bayern, C=DE\n",
+      "stderr": "",
+      "error": null
+    },
+    {
+      "command": "openssl",
+      "args": [
+        "ts",
+        "-verify",
+        "-in",
+        "$EVIDENCE/manifest.tsr",
+        "-CAfile",
+        "$EVIDENCE/cacert.pem",
+        "-untrusted",
+        "$EVIDENCE/tsa.crt",
+        "-queryfile",
+        "$EVIDENCE/manifest.tsq"
+      ],
+      "exitCode": 0,
+      "stdout": "Verification: OK\n",
+      "stderr": "Using configuration from /dev/null\nWarning: certificate from '$EVIDENCE/tsa.crt' with subject '/O=Free TSA/OU=TSA/description=This certificate digitally signs documents and time stamp requests made using the freetsa.org online services/CN=www.freetsa.org/emailAddress=busilezas@mailbox.org/L=Wuerzburg/C=DE/ST=Bayern' is not a CA cert\n",
+      "error": null
+    },
+    {
+      "command": "openssl",
+      "args": [
+        "ts",
+        "-verify",
+        "-in",
+        "$EVIDENCE/manifest.tsr",
+        "-CAfile",
+        "$EVIDENCE/cacert.pem",
+        "-untrusted",
+        "$EVIDENCE/tsa.crt",
+        "-data",
+        "$EVIDENCE/manifest.canonical.json"
+      ],
+      "exitCode": 0,
+      "stdout": "Verification: OK\n",
+      "stderr": "Using configuration from /dev/null\nWarning: certificate from '$EVIDENCE/tsa.crt' with subject '/O=Free TSA/OU=TSA/description=This certificate digitally signs documents and time stamp requests made using the freetsa.org online services/CN=www.freetsa.org/emailAddress=busilezas@mailbox.org/L=Wuerzburg/C=DE/ST=Bayern' is not a CA cert\n",
+      "error": null
+    },
+    {
+      "command": "node",
+      "args": [
+        "$REPO/bin/aura.js",
+        "verify",
+        "--manifest",
+        "$EVIDENCE/manifest.json",
+        "--public-key",
+        "$EVIDENCE/public-key.pem",
+        "--issuer",
+        "$EVIDENCE/issuer.json",
+        "--asset",
+        "$EVIDENCE/asset.txt",
+        "--timestamp-response",
+        "$EVIDENCE/manifest.tsr",
+        "--timestamp-query",
+        "$EVIDENCE/manifest.tsq",
+        "--tsa-ca",
+        "$EVIDENCE/cacert.pem",
+        "--tsa-untrusted",
+        "$EVIDENCE/tsa.crt",
+        "--json"
+      ],
+      "exitCode": 0,
+      "stdout": "{\n  \"status\": \"valid\",\n  \"schemaValidation\": {\n    \"status\": \"pass\",\n    \"schemaId\": \"https://aura-standard.org/schema/aura-manifest-v1.0.0.json\",\n    \"errors\": []\n  },\n  \"archiveResolution\": \"not_checked\",\n  \"archiveReferences\": {\n    \"status\": \"not_checked\",\n    \"references\": [],\n    \"warnings\": []\n  },\n  \"issuerIdentity\": \"not_assessed\",\n  \"valid\": true,\n  \"evidenceType\": \"evidence_package\",\n  \"auraUid\": \"aura:v1:00000000000000000000000001\",\n  \"integrityStatus\": \"verified\",\n  \"assetHashOk\": true,\n  \"signatureOk\": true,\n  \"issuerKeyPinOk\": null,\n  \"issuerKeyOk\": true,\n  \"keyRevoked\": false,\n  \"revocation\": null,\n  \"issuerStatus\": \"active\",\n  \"computedAssetHash\": \"9894ffaaf4351670081cf6222a58e3612c4bd25279f711fdfce6f281e4986308\",\n  \"manifestAssetHash\": \"9894ffaaf4351670081cf6222a58e3612c4bd25279f711fdfce6f281e4986308\",\n  \"publicKeyFingerprintSha256\": \"dcc16eeb26081e003da4d31abb87ff042a6b5b795847eebf55b857aed8ef11fd\",\n  \"publicKeyFingerprintSha3_256\": \"2cb69fc15cee441af90b28f03d231702da98c2f1a711b0905f0b8783ebd00cd8\",\n  \"canonicalization\": \"RFC-8785-JCS\",\n  \"signatureAlgorithm\": \"Ed25519\",\n  \"signatureFormat\": \"Ed25519 raw signature, base64 encoded\",\n  \"issuedAt\": \"2026-10-31T12:46:49.197Z\",\n  \"proofScope\": \"asset_integrity_signed_declaration\",\n  \"tdmRightsReservation\": {\n    \"profileClaimed\": false,\n    \"fieldPath\": \"declarations.tdm_opt_out\",\n    \"declarationValue\": null,\n    \"declarationValid\": false,\n    \"syntaxConformant\": null,\n    \"signatureBound\": null,\n    \"assetBindingVerified\": null,\n    \"profileVerified\": null,\n    \"issuerAuthorityAssessed\": false,\n    \"discoverabilityAssessed\": false,\n    \"legalEffectAssessed\": false\n  },\n  \"warnings\": [],\n  \"errors\": [],\n  \"timestamp\": {\n    \"status\": \"verified\",\n    \"standard\": \"RFC3161\",\n    \"binding\": \"jcs_full_signed_manifest\",\n    \"timestampImprintSha256\": \"7e6e47d9ae402ae9878e078f4420f8d15e9385be676eebe23d3fa0f4bc973553\",\n    \"manifestHashSha3_256\": \"sha3-256:b2b40f936f74baafadd9828e1ee5e33ba2cfb9c26b08b13b6c20952886e35181\",\n    \"genTime\": \"2026-10-31T12:46:49.000Z\",\n    \"tsaPolicy\": \"1.2.3.4.1\",\n    \"tsaSerial\": \"0x0999C8BC\",\n    \"nonceCheck\": \"passed_against_supplied_request\",\n    \"trustBasis\": \"supplied_ca_file\",\n    \"tsaPolicyAcceptability\": \"not_assessed\",\n    \"revocationAndLongTermValidation\": \"not_assessed\",\n    \"qualifiedEidas\": \"not_assessed\"\n  },\n  \"auraTimestampedChecks\": \"technical_checks_passed\"\n}\n",
+      "stderr": "",
+      "error": null
+    }
+  ],
+  "limitations": [
+    "Technical verification only; issuer identity and legal authority are not established.",
+    "Trust is relative to the supplied CA. Authenticate that anchor separately.",
+    "TSA-policy suitability, revocation and long-term validation are not assessed.",
+    "RFC 3161 verification does not establish qualified eIDAS status.",
+    "No proof of authorship, ownership, human origin, AI training use or earlier creation time."
+  ],
+  "result": {
+    "status": "valid",
+    "schemaValidation": {
+      "status": "pass",
+      "schemaId": "https://aura-standard.org/schema/aura-manifest-v1.0.0.json",
+      "errors": []
+    },
+    "archiveResolution": "not_checked",
+    "archiveReferences": {
+      "status": "not_checked",
+      "references": [],
+      "warnings": []
+    },
+    "issuerIdentity": "not_assessed",
+    "valid": true,
+    "evidenceType": "evidence_package",
+    "auraUid": "aura:v1:00000000000000000000000001",
+    "integrityStatus": "verified",
+    "assetHashOk": true,
+    "signatureOk": true,
+    "issuerKeyPinOk": null,
+    "issuerKeyOk": true,
+    "keyRevoked": false,
+    "revocation": null,
+    "issuerStatus": "active",
+    "computedAssetHash": "9894ffaaf4351670081cf6222a58e3612c4bd25279f711fdfce6f281e4986308",
+    "manifestAssetHash": "9894ffaaf4351670081cf6222a58e3612c4bd25279f711fdfce6f281e4986308",
+    "publicKeyFingerprintSha256": "dcc16eeb26081e003da4d31abb87ff042a6b5b795847eebf55b857aed8ef11fd",
+    "publicKeyFingerprintSha3_256": "2cb69fc15cee441af90b28f03d231702da98c2f1a711b0905f0b8783ebd00cd8",
+    "canonicalization": "RFC-8785-JCS",
+    "signatureAlgorithm": "Ed25519",
+    "signatureFormat": "Ed25519 raw signature, base64 encoded",
+    "issuedAt": "2026-10-31T12:46:49.197Z",
+    "proofScope": "asset_integrity_signed_declaration",
+    "tdmRightsReservation": {
+      "profileClaimed": false,
+      "fieldPath": "declarations.tdm_opt_out",
+      "declarationValue": null,
+      "declarationValid": false,
+      "syntaxConformant": null,
+      "signatureBound": null,
+      "assetBindingVerified": null,
+      "profileVerified": null,
+      "issuerAuthorityAssessed": false,
+      "discoverabilityAssessed": false,
+      "legalEffectAssessed": false
+    },
+    "warnings": [],
+    "errors": [],
+    "timestamp": {
+      "status": "verified",
+      "standard": "RFC3161",
+      "binding": "jcs_full_signed_manifest",
+      "timestampImprintSha256": "7e6e47d9ae402ae9878e078f4420f8d15e9385be676eebe23d3fa0f4bc973553",
+      "manifestHashSha3_256": "sha3-256:b2b40f936f74baafadd9828e1ee5e33ba2cfb9c26b08b13b6c20952886e35181",
+      "genTime": "2026-10-31T12:46:49.000Z",
+      "tsaPolicy": "1.2.3.4.1",
+      "tsaSerial": "0x0999C8BC",
+      "nonceCheck": "passed_against_supplied_request",
+      "trustBasis": "supplied_ca_file",
+      "tsaPolicyAcceptability": "not_assessed",
+      "revocationAndLongTermValidation": "not_assessed",
+      "qualifiedEidas": "not_assessed"
+    },
+    "auraTimestampedChecks": "technical_checks_passed"
+  },
+  "status": "passed"
+}
