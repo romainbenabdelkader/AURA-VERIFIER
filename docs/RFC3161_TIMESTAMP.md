@@ -84,6 +84,10 @@ digest, token signature, TSA certificate purpose and chain to the caller-
 supplied anchor. The original TSQ additionally checks the nonce and policy.
 The CLI parses a GMT/UTC OpenSSL timestamp and reports ISO 8601 UTC.
 Unknown date formats fail closed rather than silently using local time.
+The policy is reported numerically. The text-rendering command alone uses an
+empty OpenSSL configuration to avoid machine-local OID aliases such as
+`tsa_policy1`. Cryptographic verification retains the caller's configuration
+and security policy; this reporting normalization does not relax trust checks.
 
 The selected trust anchor's independent authenticity, acceptable policy,
 certificate revocation, long-term validation and qualified eIDAS status

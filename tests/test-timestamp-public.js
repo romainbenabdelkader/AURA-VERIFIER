@@ -19,6 +19,15 @@ try {
   assert.equal(demo.status, 0, demo.stdout + demo.stderr);
   assert.equal(JSON.parse(demo.stdout).status, 'passed');
   fs.cpSync(fixture, dir, { recursive: true });
+  // Real installations can name 1.2.3.4.1 "tsa_policy1". Reporting must retain
+  // the numeric policy without changing verification's caller configuration.
+  fs.writeFileSync(p('aliases.cnf'), 'oid_section = aliases\n[aliases]\ntsa_policy1 = 1.2.3.4.1\n');
+  const aliased = spawnSync(process.execPath, ['scripts/verify-timestamp-example.js'], {
+    cwd: root, encoding: 'utf8', timeout: 30000,
+    env: { ...process.env, OPENSSL_CONF: p('aliases.cnf') },
+  });
+  assert.equal(aliased.status, 0, aliased.stdout + aliased.stderr);
+  assert.equal(JSON.parse(aliased.stdout).result.timestamp.tsaPolicy, '1.2.3.4.1');
   const base = {
     '--manifest': p('manifest.json'), '--public-key': p('public-key.pem'),
     '--issuer': p('issuer.json'), '--asset': p('asset.txt'),

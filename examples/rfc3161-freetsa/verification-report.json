@@ -1,6 +1,6 @@
 {
   "node": "v24.19.0",
-  "checkedAt": "2026-10-31T12:49:41.053Z",
+  "checkedAt": "2026-10-31T13:18:59.380Z",
   "sourceSha256": {
     "src/archive-check.js": "5d1499fd0713142ef4d4818ecf7e9863da92c62f7d8b6c787cad417896e70c58",
     "src/base-schema-check.js": "58fa6f60923945e0604d99ca62de46b77152605ade03bad21f28675c3c673913",
@@ -12,7 +12,7 @@
     "src/schema-check.js": "76195e5e9b8f4ad82e1d03eb4d19495e19a3cb43f3f48a88756932fc8a1ec85e",
     "src/sha3.js": "72b12a62fe31cdbefe6164b2bae17907c919bbae8d2ca06a3eb4ff92ad092cad",
     "src/verify-node.js": "5225700c301cad79d7b84f1dec6a45f5e9cbe35871e3da85ffa237584780c8fd",
-    "src/verify-timestamp-node.js": "3d8dfe2163381415f270a8604fb3b9941c6041e57df0d8e1b0b5e7d431223a2f",
+    "src/verify-timestamp-node.js": "78525986e93c6965d66ef1e08df186ab831b78d5a4511e4a4ec54ac1daffd24a",
     "src/verify-web.js": "4c658a6db6dd52c87882d405f07fefdedf1e87c6d6baec49bab043eda3f1bcb4",
     "bin/aura.js": "a6cc1bfe723f8210588b07f634af951a136ba3f961a6078b220ac14f6834ab70"
   },

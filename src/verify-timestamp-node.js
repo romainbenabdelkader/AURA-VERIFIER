@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import { devNull } from 'node:os';
 import { execFileSync } from 'node:child_process';
 import { assertSafeTimestampPath, digestSignedManifestFile } from './manifest-digest.js';
 
@@ -57,7 +58,11 @@ export function verifyRfc3161Timestamp({ manifestPath, responsePath, caPath, unt
     // If request exists, check its nonce and policy, in addition to the digest.
     if (queryPath) openssl(['ts', '-verify', ...trust, '-queryfile', queryPath]);
 
-    const details = openssl(['ts', '-reply', '-in', responsePath, '-text']);
+    // Text rendering must not substitute machine-local OID aliases (for example
+    // tsa_policy1) for the numeric policy. Only this display command uses an
+    // empty configuration; both verification commands above retain the caller's
+    // OpenSSL configuration and security policy.
+    const details = openssl(['ts', '-reply', '-in', responsePath, '-text', '-config', devNull]);
     return {
       status: 'verified',
       standard: 'RFC3161',
