@@ -1,8 +1,38 @@
-# Detached RFC 3161 timestamp verification — experimental Node CLI
+# Detached RFC 3161 timestamp verification — Node CLI
 
 This optional feature does not alter any signed AURA v1.0/v1.1 manifests.
 It requires OpenSSL installed locally; the browser verifier cannot perform
 this operation yet and remains independently usable for core AURA checks.
+
+## Reproduce a real third-party timestamp for free
+
+Prerequisites: Node.js 20 or newer and OpenSSL 3.x available as `openssl` on
+PATH. No npm dependencies, AUTHENTICA account, private key or API key are needed.
+From the repository root:
+
+```sh
+node scripts/verify-timestamp-example.js > timestamp-report.json
+```
+
+The [public fixture](../examples/rfc3161-freetsa/README.md) contains fictional
+content and a genuine FreeTSA token. Verification uses only local files and
+does not contact FreeTSA or AUTHENTICA. Expect exit code 0 and `status: "passed"`.
+The report records source/evidence hashes, UTC time, exact commands, exit codes,
+stdout/stderr, TSA chain and the complete CLI result. A failed check returns
+nonzero; do not interpret the mere presence of a report as success.
+
+`expected.json` pins the checked-in bytes, not an independently trusted identity.
+Authenticate the source of the repository and the TSA anchor separately. Tests
+use normal current-time certificate validation: they will fail when certificates
+expire. Do not disable validation to preserve a green test. Historical or
+long-term validation requires a separately designed preservation process.
+
+On macOS the system `openssl` may be LibreSSL; select OpenSSL 3.x on PATH.
+If a relocated OpenSSL installation cannot find its default configuration,
+provide an explicit local configuration with `OPENSSL_CONF`. The recorded
+macOS run used `OPENSSL_CONF=/dev/null` with the CA supplied explicitly. This
+does not disable signature, purpose, chain or certificate-date checks. Only the
+synthetic-test CA extensions were made explicit; no trust checks were relaxed.
 
 ## Exact canonical preimage
 
@@ -61,12 +91,49 @@ are NOT assessed. Time of issuance never backdates evidence to July 2026;
 it establishes a bound at the TSA time only. It does not prove authorship,
 legal ownership, real-world creation time or AI training use.
 
+`auraTimestampedChecks: technical_checks_passed` is a report of this package's
+checks, not certification of an implementation or of the issuer. Read the
+individual dimensions too: asset integrity may be unverified when no asset
+was supplied; the nonce is not assessed without the original query; issuer
+identity and archive resolution remain separate. An independently timestamped
+test declaration is still a test declaration.
+
+## RFC 3161 is not qualified eIDAS timestamping
+
+RFC 3161 specifies a timestamp protocol and token format. Successful OpenSSL
+verification establishes a cryptographic binding relative to the chosen trust
+anchor. It does not audit the provider or grant a legal qualification.
+
+Under [eIDAS Article 41](https://eur-lex.europa.eu/eli/reg/2014/910), an electronic
+timestamp must not be denied legal effect solely because it is electronic or
+non-qualified. The specific presumption of accuracy of time and integrity is
+reserved to qualified timestamps. A qualified service's relevant status must
+be established through the applicable [EU trusted list](https://digital-strategy.ec.europa.eu/en/policies/eu-trusted-lists)
+and the relevant requirements, including Article 42. A valid certificate or
+RFC 3161 token alone is insufficient. This example **does not establish qualified
+eIDAS status** and always reports `qualifiedEidas: not_assessed`.
+
+An exact-byte hash does not identify a transcoded or perceptually similar file.
+No signed declaration is turned into proof of its truth, rights or human origin.
+The hash and UID do not prove that a model trained on the asset.
+
 ## Tests
 
 ```sh
 npm test
-node tests/test-timestamp-rfc3161.js
+npm run test:timestamp
 ```
 
-These tests use an ephemeral simulated local TSA; not external validation.
-Public third-party TSA evidence is a separate release gate.
+The timestamp suite has two parts:
+
+- `tests/test-timestamp-rfc3161.js`: ephemeral synthetic TSA, positive checks
+  and rejection of modified manifests, wrong tokens, untrusted CA, mismatched
+  nonce, corrupt signatures and unsafe paths. The TSA is not a public authority.
+- `tests/test-timestamp-public.js`: the preserved real public TSA response and
+  end-to-end CLI checks, including canonical JSON reformatting, altered content,
+  wrong issuer key, mismatched nonce, corrupt/missing token, incomplete trust
+  parameters and explicit reporting when timestamp/query evidence is omitted.
+
+CI runs both parts on Node 20 and 22 without requesting new timestamps. The
+public vector is independently replayable; publication and CI success must not
+be represented as a completed review by an external developer or institution.

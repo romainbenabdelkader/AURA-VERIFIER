@@ -8,6 +8,8 @@
   },
   "scripts": {
     "test": "node tests/run-tests.js",
+    "test:timestamp": "node tests/test-timestamp-rfc3161.js && node tests/test-timestamp-public.js",
+    "demo:timestamp": "node scripts/verify-timestamp-example.js",
     "demo:offline": "node scripts/offline-demo.js",
     "generate:test-vector": "node scripts/generate-test-vector.js",
     "serve:web": "python3 -m http.server 5177"

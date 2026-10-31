@@ -26,7 +26,7 @@ Proof scope:
 > prove authorship, ownership, entitlement, grounding, citation or usage
 > completeness.
 
-## Experimental detached RFC 3161 timestamp (Node CLI only)
+## Detached RFC 3161 timestamp (Node CLI only)
 
 This optional extension uses a **locally installed OpenSSL** binary and is **not**
 implemented in the JavaScript-only browser verifier. The base AURA verifier
@@ -45,7 +45,20 @@ define its hash preimage, so this is a candidate mapping, not a normative
 equivalence. No eIDAS qualification, revocation or TSA policy suitability
 is inferred by this extension.
 
-See [RFC 3161 timestamp guide](docs/RFC3161_TIMESTAMP.md).
+Reproduce verification of the committed, **real FreeTSA response over fictional
+data**, without an account or network request:
+
+```sh
+node scripts/verify-timestamp-example.js
+```
+
+Requires Node.js 20+ and OpenSSL 3.x on PATH. A report with `status: "passed"`
+and exit code 0 confirms the documented technical checks relative to the
+supplied FreeTSA root. It is **not qualified eIDAS timestamp certification**.
+The test issuer is fictional and must not be used in production.
+
+See the [public vector and expected results](examples/rfc3161-freetsa/README.md)
+and [RFC 3161 timestamp guide](docs/RFC3161_TIMESTAMP.md).
 
 ## CLI
 

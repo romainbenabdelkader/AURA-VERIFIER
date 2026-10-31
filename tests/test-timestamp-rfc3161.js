@@ -13,7 +13,9 @@ const location = (name) => path.join(dir, name);
 
 function makeTsa(prefix) {
   run('req', '-x509', '-newkey', 'rsa:2048', '-nodes', '-keyout', prefix + '-root.key',
-    '-out', prefix + '-root.pem', '-days', '2', '-subj', '/CN=' + prefix + ' TEST ONLY Root CA');
+    '-out', prefix + '-root.pem', '-days', '2', '-subj', '/CN=' + prefix + ' TEST ONLY Root CA',
+    '-addext', 'basicConstraints=critical,CA:TRUE',
+    '-addext', 'keyUsage=critical,keyCertSign,cRLSign');
   run('req', '-newkey', 'rsa:2048', '-nodes', '-keyout', prefix + '-tsa.key',
     '-out', prefix + '-tsa.csr', '-subj', '/CN=' + prefix + ' TEST ONLY TSA');
   file(prefix + '-ext.cnf', 'basicConstraints=critical,CA:FALSE\nkeyUsage=critical,digitalSignature\nextendedKeyUsage=critical,timeStamping\nsubjectKeyIdentifier=hash\nauthorityKeyIdentifier=keyid,issuer\n');

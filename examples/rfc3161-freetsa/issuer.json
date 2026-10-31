@@ -1,0 +1,11 @@
+{
+  "issuer": "FICTIONAL-TIMESTAMP-EXAMPLE",
+  "algorithm": "Ed25519",
+  "status": "active",
+  "public_key_fingerprint_sha256": "dcc16eeb26081e003da4d31abb87ff042a6b5b795847eebf55b857aed8ef11fd",
+  "public_key_fingerprint_sha3_256": "2cb69fc15cee441af90b28f03d231702da98c2f1a711b0905f0b8783ebd00cd8",
+  "valid_from": "2026-10-31T12:46:49.197Z",
+  "revoked_keys": [],
+  "test_only": true,
+  "production_use_prohibited": true
+}
