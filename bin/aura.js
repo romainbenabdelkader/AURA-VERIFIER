@@ -2,10 +2,15 @@
 import fs from 'node:fs';
 import { verifyAuraPackage } from '../src/verify-node.js';
 import { formatHumanResult } from '../src/report.js';
+import { verifyRfc3161Timestamp } from '../src/verify-timestamp-node.js';
 
 function usage() {
   return `Usage:
   aura verify --manifest <manifest.json> --public-key <public-key.pem> [--asset <file>] [--issuer <issuer.json>] [--json]
+
+  Optional detached RFC 3161: --timestamp-response <response.tsr> --tsa-ca <trusted-root.pem>
+    [--tsa-untrusted <tsa-chain.pem>] [--timestamp-query <original-request.tsq>]
+    The response must cover the exact bytes of the FULL signed manifest.
 
   --asset is optional. Omit it to verify a catalog claim (a signed catalogue
   declaration with an issuer-declared issuance time, issued without a supplied
@@ -59,10 +64,33 @@ async function main() {
       issuerText: args.issuer ? fs.readFileSync(args.issuer, 'utf8') : null,
     });
 
+    const wantsTimestamp = ['timestamp-response', 'tsa-ca', 'tsa-untrusted', 'timestamp-query'].some((key) => args[key]);
+    if (wantsTimestamp && (!args['timestamp-response'] || !args['tsa-ca'])) {
+      throw new Error('RFC 3161 requires both --timestamp-response and --tsa-ca.');
+    }
+    result.timestamp = wantsTimestamp ? verifyRfc3161Timestamp({
+      manifestPath: args.manifest,
+      responsePath: args['timestamp-response'],
+      caPath: args['tsa-ca'],
+      untrustedPath: args['tsa-untrusted'] || null,
+      queryPath: args['timestamp-query'] || null,
+    }) : { status: 'not_provided', qualifiedEidas: 'not_assessed' };
+    result.auraTimestampedChecks = result.signatureOk && result.status !== 'invalid' && result.timestamp.status === 'verified'
+      ? 'technical_checks_passed' : 'not_established';
+    if (result.timestamp.status === 'invalid') {
+      result.errors.push('RFC 3161 verification failed: ' + result.timestamp.error);
+      result.status = 'invalid';
+      result.valid = false;
+    }
+
     if (args.json) {
       console.log(JSON.stringify(result, null, 2));
     } else {
       console.log(formatHumanResult(result));
+      console.log('\\nRFC 3161 timestamp: ' + result.timestamp.status);
+      if (result.timestamp.genTime) console.log('TSA genTime: ' + result.timestamp.genTime);
+      console.log('AURA-Timestamped technical checks: ' + result.auraTimestampedChecks);
+      console.log('Qualified eIDAS status: not assessed');
     }
 
     process.exitCode = result.status === 'valid' ? 0 : result.status === 'warning' ? 1 : 2;

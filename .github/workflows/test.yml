@@ -16,3 +16,4 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
       - run: npm test
+      - run: node tests/test-timestamp-rfc3161.js
