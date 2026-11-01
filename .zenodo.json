@@ -1,14 +1,13 @@
 {
-  "title": "AURA-VERIFIER — Independent CLI and Browser Verifier (v1.1.0)",
-  "description": "Independent open-source verifier for AURA evidence packages. Version 1.1.0 validates the optional signed TDM rights-reservation profile in both Node and browser engines, rejects non-boolean declarations and tampering, and reports syntax, signature and asset binding separately from issuer authority, discovery or receipt, and legal effect. Local verification remains available with network access blocked and no account or proprietary backend.",
+  "title": "AURA-VERIFIER — Independent CLI and Browser Verifier (v1.2.0)",
+  "description": "Independent open-source verifier for AURA evidence packages. Version 1.2.0 adds detached RFC 3161 timestamp verification through the Node CLI and local OpenSSL, with a real FreeTSA response over fictional public test data. It validates the published AURA manifest 1.0 and 1.1 base schemas and the optional signed TDM rights-reservation profile, rejects unsupported versions and hash algorithms, requires Ed25519 keys, and rejects lone Unicode surrogates during JCS canonicalization. Node and WebCrypto verification remain local and require no AUTHENTICA account or backend. Mathematical signature validity, exact-byte integrity, supplied key-status information and timestamp checks are reported separately from civil identity, legal authority, ownership and dossier completeness. RFC 3161 checks do not establish qualified eIDAS timestamp status. Published schemas and existing signed evidence are unchanged.",
   "creators": [
     {
       "name": "Benabdelkader, Romain",
       "orcid": "0009-0005-8754-088X"
     }
   ],
-  "version": "1.1.0",
-  "publication_date": "2026-08-23",
+  "version": "1.2.0",
   "license": "MIT",
   "access_right": "open",
   "keywords": [
@@ -19,7 +18,10 @@
     "TDM rights reservation",
     "Ed25519",
     "SHA3-256",
-    "RFC 8785"
+    "RFC 8785",
+    "RFC 3161",
+    "FreeTSA",
+    "reproducible test vectors"
   ],
   "related_identifiers": [
     {
@@ -27,5 +29,6 @@
       "relation": "isSupplementTo",
       "scheme": "url"
     }
-  ]
+  ],
+  "upload_type": "software"
 }
