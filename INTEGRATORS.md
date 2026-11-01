@@ -14,7 +14,14 @@ The checker implements their assertion keywords: type, const, required,
 properties, pattern, minLength, items and local $ref. Additional properties
 remain allowed. The date-time format is annotation-only, as in the default
 JSON Schema 2020-12 vocabulary. This is not a general JSON Schema engine.
-Unknown/legacy versions report `not_checked`, never a schema pass.
+Only manifest versions `1.0` and `1.1` are supported. Unknown, missing and
+historical versions produce an invalid overall result. Their base-schema
+dimension may still report `not_checked`; it never establishes version support.
+Asset hashes require an explicit `SHA3-256` algorithm; other declarations are
+rejected and their integrity dimension is not reported as verified.
+Node requires an Ed25519 public key, matching the WebCrypto import policy.
+Lone Unicode surrogates in property names and values are rejected under
+RFC 8785 section 3.2.2.2. See [compatibility notes](docs/STRICT_VERIFICATION.md).
 The supported TDM profile is checked separately by the existing profile logic;
 other profiles are not certified by a base-schema pass.
 
@@ -26,6 +33,13 @@ With Node.js 20 or newer, from this repository:
 node bin/aura.js verify --manifest manifest.json --public-key public-key.pem --asset asset.txt --issuer issuer.json --json
 node tests/run-tests.js
 ```
+
+For a committed current-format example, use the four input files under
+`examples/rfc3161-freetsa/`. The Python `aura-core` and `aura-cli` repositories
+are historical v0.1 demonstrations, not current-format JCS signing SDKs.
+To create fictional v1.0 packages locally, run
+`node scripts/generate-test-vector.js /path/to/a-new-directory`.
+This is a test generator, not an issuer onboarding or production signing tool.
 
 Exit codes: 0 valid under the local checks; 1 warnings/incomplete checks; 2 invalid
 or input error. The browser verifier uses the same schema check.

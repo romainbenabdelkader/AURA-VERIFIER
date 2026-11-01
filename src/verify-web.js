@@ -3,20 +3,11 @@ import { checkBaseSchema } from './base-schema-check.js';
 import { inspectArchiveReferences } from './archive-check.js';
 import { sha3_256_hex } from './sha3.js';
 import { base64ToBytes, pemToDer, sameBytes } from './pem.js';
-import { checkManifestStructure, inspectTdmRightsReservation } from './schema-check.js';
+import { checkManifestStructure, inspectAssetHash, inspectTdmRightsReservation } from './schema-check.js';
 
 async function sha256Hex(bytes) {
   const digest = await crypto.subtle.digest('SHA-256', bytes);
   return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('');
-}
-
-function extractAssetHash(manifest) {
-  return (
-    manifest?.asset?.hash ||
-    manifest?.asset?.asset_hash_sha3_256 ||
-    manifest?.asset_hash ||
-    null
-  );
 }
 
 // A catalog claim is a signed catalogue declaration with an issuer-declared issuance time, issued WITHOUT
@@ -54,21 +45,23 @@ export async function verifyAuraPackageBrowser({
   const issuer = issuerText ? JSON.parse(issuerText) : null;
   const signature = manifest.signature || {};
 
-  // Structural validation for published v1.0/v1.1 manifests and supported
-  // profile overlays (no-op for legacy draft and explicit test versions).
+  // Structural validation and supported-version/algorithm policy are shared
+  // with the Node engine. Unsupported versions always invalidate the result.
   const structure = checkManifestStructure(manifest);
   errors.push(...structure.errors);
   warnings.push(...structure.warnings);
   const tdmReservation = inspectTdmRightsReservation(manifest);
 
   // --- Asset integrity (optional asset; fileless catalog claims are N/A) ---
-  const manifestAssetHash = extractAssetHash(manifest);
+  const { hash: manifestAssetHash, algorithmSupported } = inspectAssetHash(manifest);
   const catalogClaim = isCatalogClaim(manifest);
   let computedAssetHash = null;
   let assetHashOk = null; // true | false | null (not applicable / not checked)
   let integrityStatus; // 'verified' | 'mismatch' | 'not_checked' | 'not_applicable'
 
-  if (assetBytes) {
+  if (manifestAssetHash && !algorithmSupported) {
+    integrityStatus = 'not_checked';
+  } else if (assetBytes) {
     computedAssetHash = sha3_256_hex(new Uint8Array(assetBytes));
     if (manifestAssetHash) {
       assetHashOk = computedAssetHash === manifestAssetHash;
@@ -89,12 +82,18 @@ export async function verifyAuraPackageBrowser({
 
   // --- Signature ---
   const publicKeyDer = pemToDer(publicKeyPem);
-  const payload = new TextEncoder().encode(canonicalize(unsignedManifest(manifest)));
+  let payload = null;
+  try {
+    canonicalize(manifest);
+    payload = new TextEncoder().encode(canonicalize(unsignedManifest(manifest)));
+  } catch (error) {
+    errors.push(`Manifest canonicalization failed: ${error instanceof Error ? error.message : String(error)}`);
+  }
   let signatureOk = false;
 
   if (!signature.value) {
     errors.push('Manifest signature is missing.');
-  } else {
+  } else if (payload !== null) {
     try {
       const key = await crypto.subtle.importKey('spki', publicKeyDer, { name: 'Ed25519' }, false, ['verify']);
       signatureOk = await crypto.subtle.verify({ name: 'Ed25519' }, key, base64ToBytes(signature.value), payload);

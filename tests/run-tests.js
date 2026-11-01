@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict';
 import './conformance.js';
+import './test-strict-verification.js';
+import './test-generated-vectors.js';
 import fs from 'node:fs';
 import { verifyAuraPackage } from '../src/verify-node.js';
 import { verifyAuraPackageBrowser } from '../src/verify-web.js';
@@ -34,11 +36,18 @@ assert.ok(malformedPublishedV1.errors.some((error) => /aura_uid/.test(error)));
 assert.ok(malformedPublishedV1.errors.some((error) => /issuer/.test(error)));
 assert.ok(malformedPublishedV1.errors.some((error) => /signature/.test(error)));
 
-const valid = await verifyAuraPackage(readVector('valid'));
+const valid = await verifyAuraPackage(createV11Package());
 assert.equal(valid.status, 'valid');
 assert.equal(valid.assetHashOk, true);
 assert.equal(valid.signatureOk, true);
 assert.equal(valid.issuerKeyOk, true);
+
+// Historical signed fixtures remain byte-for-byte intact. Their cryptographic
+// dimensions can still be inspected, but unsupported versions are never valid.
+const historical = await verifyAuraPackage(readVector('valid'));
+assert.equal(historical.status, 'invalid');
+assert.equal(historical.signatureOk, true);
+assert.ok(historical.errors.some(e => /Unsupported AURA manifest version/.test(e)));
 
 const invalidAsset = await verifyAuraPackage(readVector('invalid-asset'));
 assert.equal(invalidAsset.status, 'invalid');
