@@ -41,6 +41,10 @@ are separate from the source version recorded here.
   revocation acceptance policy from unassessed historical validity.
 - Label the supplied snapshot's current key status separately from the examined
   key's revocation status; an active current record does not override revocation.
+- Handle a browser SPKI-import DataError for a complete canonical Ed25519 key
+  by importing its unchanged 32 public bytes. This avoids the leading-zero key
+  rejection reproduced in Linux WebKit. Digest pins still cover the original
+  DER; malformed wrappers cannot use this compatibility path.
 
 See [audit corrections](docs/AUDIT_CORRECTIONS.md) for exact behavior, affected
 boundaries, reproduction instructions and remaining limits.
@@ -68,14 +72,14 @@ an explicit relationship to the preserved original.
 ## Tests and reproduction
 
 The prepared source includes 137 official NIST SHA3-256 short-message vectors,
-1,025 further native-crypto comparisons, and 44 audit package scenarios shared
+1,025 further native-crypto comparisons, and 45 audit package scenarios shared
 between Node and WebCrypto. Existing strict-format, input-ambiguity, semantic,
 generated-vector, RFC 3161 and offline suites remain included. Test-family counts
 must not be added together as independent packages or production evidence.
 
 The source validation record reports passing suites under Node 20.20.2,
 22.23.4 and 24.22.1 with OpenSSL 3.6.2. An actual browser suite exercises the
-44 audit scenarios and NIST vectors in Chromium, Firefox and Playwright WebKit,
+45 audit scenarios and NIST vectors in Chromium, Firefox and Playwright WebKit,
 with external requests blocked. WebCrypto-under-Node tests and real browser
 tests are distinct; Playwright WebKit is not the Safari application.
 

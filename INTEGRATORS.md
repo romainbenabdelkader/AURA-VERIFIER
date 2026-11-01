@@ -21,6 +21,10 @@ dimension may still report `not_checked`; it never establishes version support.
 Asset hashes require an explicit `SHA3-256` algorithm; other declarations are
 rejected and their integrity dimension is not reported as verified.
 Node requires an Ed25519 public key, matching the WebCrypto import policy.
+If a browser rejects a canonical Ed25519 SPKI with DataError, the verifier can
+import its exact 32 public bytes instead. The full 44-byte DER wrapper is checked
+before this compatibility path; digest pins still use the original DER bytes.
+This handles the leading-zero public-key rejection in GCrypt-based WebKit.
 Lone Unicode surrogates in property names and values are rejected under
 RFC 8785 section 3.2.2.2. See [compatibility notes](docs/STRICT_VERIFICATION.md).
 The supported TDM profile is checked separately by the existing profile logic;
