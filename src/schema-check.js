@@ -20,11 +20,18 @@ function isObject(value) {
 }
 
 export function inspectAssetHash(manifest) {
-  const hash = manifest?.asset?.hash || manifest?.asset?.asset_hash_sha3_256 || manifest?.asset_hash || null;
+  // Historical fileless catalogue records use null aliases to mean no hash.
+  const hashes = [manifest?.asset?.hash, manifest?.asset?.asset_hash_sha3_256, manifest?.asset_hash]
+    .filter((value) => value !== undefined && value !== null);
+  const hash = hashes[0] ?? null;
+  const hashDeclarationsValid = hashes.every((value) => typeof value === 'string' && ASSET_HASH_RE.test(value))
+    && hashes.every((value) => value === hash);
   const algorithms = [manifest?.asset?.hash_algorithm, manifest?.asset_hash_algorithm]
     .filter((value) => value !== undefined);
   return {
     hash,
+    hashDeclared: hashes.length > 0,
+    hashDeclarationsValid,
     algorithmSupported: algorithms.length > 0 && algorithms.every((value) => value === 'SHA3-256'),
     algorithms,
   };
@@ -58,9 +65,12 @@ export function checkManifestStructure(manifest) {
   }
 
   const assetHash = inspectAssetHash(manifest);
+  if (!assetHash.hashDeclarationsValid) {
+    errors.push('Asset hash declarations must be identical 64-character lowercase hexadecimal SHA3-256 values.');
+  }
   if (assetHash.algorithms.some((value) => value !== 'SHA3-256')) {
     errors.push('Unsupported asset hash algorithm; only SHA3-256 is supported.');
-  } else if (assetHash.hash && !assetHash.algorithmSupported) {
+  } else if (assetHash.hashDeclared && !assetHash.algorithmSupported) {
     errors.push('A declared asset hash requires an explicit SHA3-256 hash algorithm.');
   }
 
