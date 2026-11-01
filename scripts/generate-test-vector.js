@@ -4,7 +4,12 @@ import path from 'node:path';
 import { canonicalize } from '../src/jcs.js';
 import { sha3_256_hex } from '../src/sha3.js';
 
-const outDir = path.join('tests', 'vectors', 'valid');
+// Generate new fictional evidence separately from committed historical proofs.
+// Refuse an existing destination rather than silently replacing signed bytes.
+const outputRoot = process.argv[2] || path.join('generated', 'test-vectors');
+fs.mkdirSync(path.dirname(outputRoot), { recursive: true });
+fs.mkdirSync(outputRoot);
+const outDir = path.join(outputRoot, 'valid');
 fs.mkdirSync(outDir, { recursive: true });
 
 const asset = Buffer.from('hello AURA\n', 'utf8');
@@ -17,10 +22,10 @@ const publicKeySha256 = crypto.createHash('sha256').update(publicKeyDer).digest(
 const publicKeySha3 = sha3_256_hex(new Uint8Array(publicKeyDer));
 
 const unsignedManifest = {
-  aura_version: '0.1-test',
+  aura_version: '1.0',
   profile: 'AURA_TEST_VECTOR',
-  aura_id: 'aura:v1:test-vector-valid',
-  aura_uid: 'aura:v1:test-vector-valid',
+  aura_id: 'aura:v1:01ARZ3NDEKTSV4RRFFQ69G5FAV',
+  aura_uid: 'aura:v1:01ARZ3NDEKTSV4RRFFQ69G5FAV',
   issuer: {
     id: 'AURA-TEST',
     service: 'AURA-VERIFIER',
@@ -70,14 +75,14 @@ fs.writeFileSync(path.join(outDir, 'manifest.json'), `${JSON.stringify(manifest,
 fs.writeFileSync(path.join(outDir, 'public-key.pem'), publicKeyPem);
 fs.writeFileSync(path.join(outDir, 'issuer.json'), `${JSON.stringify(issuer, null, 2)}\n`);
 
-const invalidDir = path.join('tests', 'vectors', 'invalid-asset');
+const invalidDir = path.join(outputRoot, 'invalid-asset');
 fs.mkdirSync(invalidDir, { recursive: true });
 fs.writeFileSync(path.join(invalidDir, 'asset.txt'), 'tampered AURA\n');
 fs.copyFileSync(path.join(outDir, 'manifest.json'), path.join(invalidDir, 'manifest.json'));
 fs.copyFileSync(path.join(outDir, 'public-key.pem'), path.join(invalidDir, 'public-key.pem'));
 fs.copyFileSync(path.join(outDir, 'issuer.json'), path.join(invalidDir, 'issuer.json'));
 
-const tamperedDir = path.join('tests', 'vectors', 'invalid-signature');
+const tamperedDir = path.join(outputRoot, 'invalid-signature');
 fs.mkdirSync(tamperedDir, { recursive: true });
 fs.copyFileSync(path.join(outDir, 'asset.txt'), path.join(tamperedDir, 'asset.txt'));
 fs.copyFileSync(path.join(outDir, 'public-key.pem'), path.join(tamperedDir, 'public-key.pem'));

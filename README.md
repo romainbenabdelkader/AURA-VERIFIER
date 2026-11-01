@@ -6,6 +6,10 @@ Independent verifier for AURA Evidence Packages.
 
 Current release: v1.1.0.
 
+This checkout includes unreleased validation fixes. See
+[strict verification and compatibility](docs/STRICT_VERIFICATION.md).
+Supported manifest versions are exactly `1.0` and `1.1`.
+
 This project verifies AURA manifests without requiring an AUTHENTICA account,
 the AUTHENTICA backend, or any upload to `lockdna.tech`.
 
@@ -64,18 +68,18 @@ and [RFC 3161 timestamp guide](docs/RFC3161_TIMESTAMP.md).
 
 ```bash
 ./bin/aura.js verify \
-  --asset tests/vectors/valid/asset.txt \
-  --manifest tests/vectors/valid/manifest.json \
-  --public-key tests/vectors/valid/public-key.pem
+  --asset examples/rfc3161-freetsa/asset.txt \
+  --manifest examples/rfc3161-freetsa/manifest.json \
+  --public-key examples/rfc3161-freetsa/public-key.pem
 ```
 
 JSON output:
 
 ```bash
 ./bin/aura.js verify \
-  --asset tests/vectors/valid/asset.txt \
-  --manifest tests/vectors/valid/manifest.json \
-  --public-key tests/vectors/valid/public-key.pem \
+  --asset examples/rfc3161-freetsa/asset.txt \
+  --manifest examples/rfc3161-freetsa/manifest.json \
+  --public-key examples/rfc3161-freetsa/public-key.pem \
   --json
 ```
 
@@ -83,10 +87,10 @@ With issuer metadata:
 
 ```bash
 ./bin/aura.js verify \
-  --asset tests/vectors/valid/asset.txt \
-  --manifest tests/vectors/valid/manifest.json \
-  --public-key tests/vectors/valid/public-key.pem \
-  --issuer tests/vectors/valid/issuer.json
+  --asset examples/rfc3161-freetsa/asset.txt \
+  --manifest examples/rfc3161-freetsa/manifest.json \
+  --public-key examples/rfc3161-freetsa/public-key.pem \
+  --issuer examples/rfc3161-freetsa/issuer.json
 ```
 
 ## Web Verifier
@@ -134,6 +138,18 @@ Generate fresh local test vectors:
 npm run generate:test-vector
 ```
 
+The generator creates fictional v1.0 packages under `generated/test-vectors/`
+and refuses an existing destination. To choose another destination:
+
+```bash
+node scripts/generate-test-vector.js /path/to/a-new-directory
+```
+
+The committed `tests/vectors/valid`, `invalid-asset` and `invalid-signature`
+fixtures use the historical `0.1-test` version. Their signed bytes are preserved
+as regression evidence; that version now produces an invalid overall result.
+Use the public v1.0 example above or the newly generated packages for integration.
+
 Run tests:
 
 ```bash
@@ -162,6 +178,10 @@ Included cases:
 - acceptance of a correctly signed, asset-bound TDM rights-reservation profile
 - rejection of signed TDM profile claims whose declaration is missing or is not
   exactly the JSON boolean `true`
+- rejection of unknown manifest versions and unsupported/missing hash algorithms
+- rejection of an Ed448 key/signature labeled Ed25519 by both engines
+- rejection of lone Unicode surrogates in values and property names, including
+  the signature object, while valid surrogate pairs continue to verify
 
 For the optional TDM rights-reservation profile, the verifier reports profile
 conformance separately from issuer authority, automated discoverability or

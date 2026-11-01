@@ -7,9 +7,8 @@
 // malformed published manifest before checking a signature, without pulling
 // in a full JSON-Schema engine.
 //
-// It gates manifests that declare aura_version "1.0" or "1.1". Legacy draft and
-// explicit test-vector versions are passed through for backwards-compatible
-// cryptographic checks.
+// Only published manifest versions "1.0" and "1.1" are supported. A
+// cryptographically valid signature cannot establish support for another version.
 
 import { checkBaseSchema } from './base-schema-check.js';
 const ASSET_HASH_RE = /^[0-9a-f]{64}$/;
@@ -18,6 +17,17 @@ export const TDM_RIGHTS_RESERVATION_PROFILE = 'AURA_TDM_RIGHTS_RESERVATION_V1';
 
 function isObject(value) {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
+export function inspectAssetHash(manifest) {
+  const hash = manifest?.asset?.hash || manifest?.asset?.asset_hash_sha3_256 || manifest?.asset_hash || null;
+  const algorithms = [manifest?.asset?.hash_algorithm, manifest?.asset_hash_algorithm]
+    .filter((value) => value !== undefined);
+  return {
+    hash,
+    algorithmSupported: algorithms.length > 0 && algorithms.every((value) => value === 'SHA3-256'),
+    algorithms,
+  };
 }
 
 export function inspectTdmRightsReservation(manifest) {
@@ -42,10 +52,16 @@ export function checkManifestStructure(manifest) {
     return { errors, warnings };
   }
 
-  // Published v1.0 and v1.1 manifests are structurally gated. Legacy draft and
-  // explicit test-vector versions remain accepted for cryptographic checks.
+  // Do not interpret arbitrary future or historical versions as current AURA.
   if (manifest.aura_version !== '1.0' && manifest.aura_version !== '1.1') {
-    return { errors, warnings };
+    errors.push('Unsupported AURA manifest version; supported versions are "1.0" and "1.1".');
+  }
+
+  const assetHash = inspectAssetHash(manifest);
+  if (assetHash.algorithms.some((value) => value !== 'SHA3-256')) {
+    errors.push('Unsupported asset hash algorithm; only SHA3-256 is supported.');
+  } else if (assetHash.hash && !assetHash.algorithmSupported) {
+    errors.push('A declared asset hash requires an explicit SHA3-256 hash algorithm.');
   }
 
   const tdm = inspectTdmRightsReservation(manifest);
