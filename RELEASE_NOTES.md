@@ -1,76 +1,77 @@
-# Unreleased: consistent verification and historical compatibility
+# AURA-VERIFIER v1.2.0
 
-The Node and WebCrypto engines now reject unsupported manifest versions and
-asset hash algorithms consistently. Node requires an Ed25519 public key instead
-of accepting another EdDSA key type under an Ed25519 label. RFC 8785 JCS rejects
-lone Unicode surrogates in values and property names, including signature
-metadata; valid Unicode pairs are preserved.
+This source version brings together the changes since archived v1.1.0.
+The release status is recorded on GitHub and Zenodo; source version metadata
+alone does not establish that a release tag or an archive has been published.
+
+## Included changes
+
+- Detached RFC 3161 verification through the Node CLI and locally installed
+  OpenSSL, including manifest binding, signature, supplied certificate chain
+  and nonce checks when the original request is provided.
+- A public, fictional AURA package with a real FreeTSA response and reproducible
+  offline verification. The timestamp preimage is RFC 8785 JCS of the complete
+  signed manifest, including its signature object.
+- Base-schema checks for published manifest versions 1.0 and 1.1, with separate
+  reporting of syntax, signatures, exact-byte integrity and archive-reference
+  inspection. A DOI-shaped string does not establish archive resolution.
+- Consistent rejection of unsupported versions and hash algorithms in Node and
+  WebCrypto; explicit Ed25519 key-type enforcement in Node; rejection of lone
+  Unicode surrogates in values and property names, including signature metadata.
+- A generator that creates fictional v1.0 packages in a fresh separate directory
+  and refuses overwriting. Historical signed fixtures remain unchanged.
+- Current integrator instructions and explicit labels for historical formats.
 
 ## Compatibility and revoked keys
 
 Only manifest versions `1.0` and `1.1` are supported. Historical formats,
 including AUTHENTICA's private `0.1-pilot` format and the `0.1-test` fixtures,
-now receive an invalid overall result for unsupported version. Their signed
-bytes remain unchanged and their signature dimension may still be inspected.
-This does not establish that a historical signature was forged or determine the
-legal value of an old record. The standard draft's `origin_proof_version: "0.1"`,
-the Python demo and `0.1-pilot` are different historical formats.
+receive an invalid overall result for unsupported version. Their signed bytes
+remain unchanged and their signature dimension may still be inspected. This
+does not establish that a historical signature was forged or determine its
+legal value. The standard draft's `origin_proof_version: "0.1"`, the Python
+demo and `0.1-pilot` are different historical formats.
+
+Declared asset hashes require explicit `SHA3-256`. Valid v1.0 manifests do not
+require v1.1 reference anchors. Correctly signed but malformed current-format
+manifests fail schema/semantic checks; cryptographic validity does not override
+those failures. Published schemas and existing signed/TSA evidence are unchanged.
 
 Revocation policy is unchanged: a key listed as revoked in the supplied registry
 causes an invalid overall result, even when its signature is mathematically
 verifiable. An issuer-declared date before revocation does not override that
-policy. A timestamp or a version upgrade does not restore trust in a revoked key.
-Report registry provenance and freshness separately from signature validity.
+policy. A timestamp or version upgrade does not restore trust in a revoked key.
+Registry provenance and freshness remain separate trust decisions.
 
 Pilot processing counts must not be presented as counts of currently valid
-evidence unless the relevant corpus, key status and verification results have
-actually been checked. Any later reissue is a new declaration with its actual
-issuance date; it does not modify or retroactively validate the original record.
+evidence unless the relevant corpus, key status and results have been checked.
+Any later reissue is a new declaration with its actual issuance date; it does
+not modify or retroactively validate the original record.
 
-Declared asset hashes require an explicit `SHA3-256` algorithm. The test-vector
-generator now creates current v1.0 packages in a separate fresh destination and
-refuses overwriting. Historical signed fixtures, public TSA evidence and
-published schemas are preserved.
+## Verification and limits
 
-Validation: 47 shared signed scenarios in Node and WebCrypto, including the
-`0.1-pilot` rejection case, pass under Node 20.19.0, 22.14.0 and 24.22.1.
-Existing regression and RFC 3161 suites pass. The public FreeTSA example remains
-verifiable offline; no qualified eIDAS status is inferred. WebCrypto tests run
-under Node and do not constitute independent-implementation or browser UI tests.
+The regression suite includes 47 shared signed scenarios through Node and
+WebCrypto, with matching verdicts, and current-format generated vector checks.
+Separate suites cover synthetic RFC 3161 evidence and the real public FreeTSA
+fixture, including negative cases. Run `npm test` and `npm run test:timestamp`.
 
-See [strict verification](docs/STRICT_VERIFICATION.md) for remaining scope and
-review limits. This preparation does not create a release tag or archive DOI.
+WebCrypto runs under Node in these tests; this is not browser UI testing or
+independent-implementation reproduction. RFC 3161 does not establish qualified
+eIDAS timestamp status. TSA revocation and long-term preservation, civil issuer
+identity, legal authority, ownership and dossier completeness are not established.
 
-# Earlier pending notes: manifest schema validation
+Duplicate JSON property handling before `JSON.parse`, cross-field issuer policy
+and semantic date validation remain follow-up reviews. Base-schema date-time
+formats remain annotations. See [strict verification](docs/STRICT_VERIFICATION.md)
+and the [RFC 3161 guide](docs/RFC3161_TIMESTAMP.md).
 
-Signed v1.0/v1.1 manifests now undergo the assertion checks in the bundled
-canonical base schemas. A valid signature on an incomplete v1.1 reference
-anchor returns `status: invalid`, `signatureOk: true`, and
-`schemaValidation.status: fail`, with field-specific errors.
+## Archive references
 
-CLI and browser reports expose base-schema validation separately. Existing
-signature, exact-byte integrity, issuer key pin and revocation checks remain.
-The guide INTEGRATORS.md explains versioning and reference-artifact semantics.
+Concept DOI: https://doi.org/10.5281/zenodo.21251286
 
-Compatibility: previously accepted malformed published manifests will fail.
-Valid v1.0 manifests do not require v1.1 anchors. Unknown and legacy versions
-may expose cryptographic dimensions and schema `not_checked`, but now have an
-invalid overall verdict under the version policy above.
-Date-time formats remain annotations. Remote archives, real-world issuer
-identity and whole-implementation conformance are not assessed.
+Historical v1.1.0 archive: https://doi.org/10.5281/zenodo.22069698
 
-Validation: existing regression suite plus correctly signed malformed packages,
-valid v1.0/v1.1 and extension fields in both Node and WebCrypto engines.
-Bundled schemas match standard release v1.2.1 commit
-91b2d51fd6808c6882728c6104e75becee2b9578.
-
-Publication checklist:
-
-- Review the code and integration guide together.
-- Run `npm test` on Node 20 and 22 (automated in the proposed CI workflow).
-- Choose a new verifier release version; do not overwrite an archived release.
-- Publish the reviewed verifier and guide together and archive the exact release.
-- Use the resulting archive coordinates only after they exist. Do not change
-  published standard schemas or archived evidence to point to this pending build.
-
-No release tag, archive DOI or certification is created by this preparation.
+The historical archive predates these additions and is preserved unchanged.
+Reference a new version-specific DOI only after the archive has been reviewed
+and published. Release and archive publication are separate from this source
+preparation; no existing DOI, schema or signed reference anchor is rewritten.

@@ -1,4 +1,4 @@
-# Strict verification: unreleased corrections
+# Strict verification in source version v1.2.0
 
 These changes tighten verifier policy without changing the published schemas
 or any committed signed manifests, timestamp responses, queries or certificates.

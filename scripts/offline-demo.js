@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 import { verifyAuraPackage } from '../src/verify-node.js';
 import { verifyAuraPackageBrowser } from '../src/verify-web.js';
 import { createV11Package } from '../tests/helpers/v11-package.js';
 
+const { version: verifierVersion } = JSON.parse(fs.readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
 const localPackage = createV11Package();
 const originalFetch = globalThis.fetch;
 let networkRequests = 0;
@@ -39,7 +41,7 @@ try {
   console.log(JSON.stringify({
     demonstration: 'AURA local/offline privacy verification',
     auraVersion: '1.1',
-    verifierVersion: '1.1.0',
+    verifierVersion,
     networkAccess: 'blocked',
     networkRequests,
     nodeEngine: {

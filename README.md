@@ -4,9 +4,12 @@ Integrator instructions and limits: [INTEGRATORS.md](INTEGRATORS.md).
 
 Independent verifier for AURA Evidence Packages.
 
-Current release: v1.1.0.
+Version of this source tree: v1.2.0.
 
-This checkout includes unreleased validation fixes. See
+Published release status: [GitHub releases](https://github.com/romainbenabdelkader/AURA-VERIFIER/releases).
+A source version is not evidence that a release tag or a Zenodo version has been published.
+
+This source includes consistent validation across Node and WebCrypto. See
 [strict verification and compatibility](docs/STRICT_VERIFICATION.md).
 Supported manifest versions are exactly `1.0` and `1.1`.
 
@@ -207,5 +210,13 @@ The private key used to generate test vectors is never written to disk.
 Concept DOI (all versions):
 https://doi.org/10.5281/zenodo.21251286
 
-Latest archived version — AURA-VERIFIER v1.0.2:
+Archived v1.1.0 (historical reference, before the RFC 3161 and strict-validation additions):
+https://doi.org/10.5281/zenodo.22069698
+
+Previous archived v1.0.2:
 https://doi.org/10.5281/zenodo.22063259
+
+The concept DOI above resolves to the latest published archive. Cite the exact
+version DOI and commit used for reproduction. The historical archives are not
+rewritten when main evolves; a new version-specific DOI is referenced only after
+that archive exists.

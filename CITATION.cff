@@ -1,13 +1,12 @@
 cff-version: 1.2.0
-message: "If you use AURA-VERIFIER, please cite this release."
+message: "Please cite the version and commit or archived artifact you actually used."
 title: "AURA-VERIFIER — Independent CLI and Browser Verifier"
 type: software
 authors:
   - family-names: Benabdelkader
     given-names: Romain
     orcid: "https://orcid.org/0009-0005-8754-088X"
-version: 1.1.0
-date-released: 2026-08-23
+version: 1.2.0
 identifiers:
   - type: doi
     value: 10.5281/zenodo.21251286
