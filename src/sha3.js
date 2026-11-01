@@ -84,8 +84,9 @@ function toBytes(input) {
 export function sha3_256(input) {
   const rate = 136;
   const bytes = toBytes(input);
-  const padLen = rate - ((bytes.length + 1) % rate);
-  const padded = new Uint8Array(bytes.length + 1 + padLen);
+  // FIPS 202: the suffix and final padding bit share one byte at rate - 1.
+  const padLen = rate - (bytes.length % rate);
+  const padded = new Uint8Array(bytes.length + padLen);
   padded.set(bytes);
   padded[bytes.length] = 0x06;
   padded[padded.length - 1] ^= 0x80;

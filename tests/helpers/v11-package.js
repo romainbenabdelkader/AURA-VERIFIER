@@ -1,9 +1,10 @@
 import nodeCrypto from 'node:crypto';
 import { canonicalize } from '../../src/jcs.js';
-import { sha3_256_hex } from '../../src/sha3.js';
+// Fixture digests must not use the implementation under test.
+const sha3_256_hex = bytes => nodeCrypto.createHash('sha3-256').update(bytes).digest('hex');
 
 export function createV11Package(options = {}) {
-  const assetBytes = Buffer.from('AURA v1.1 local verification regression\n', 'utf8');
+  const assetBytes = options.assetBytes ?? Buffer.from('AURA v1.1 local verification regression\n', 'utf8');
   const { publicKey, privateKey } = nodeCrypto.generateKeyPairSync('ed25519');
   const publicKeyPem = publicKey.export({ type: 'spki', format: 'pem' }).toString();
   const publicKeyDer = publicKey.export({ type: 'spki', format: 'der' });

@@ -21,11 +21,25 @@ export function bytesToBase64(bytes) {
 }
 
 export function base64ToBytes(base64) {
-  if (typeof Buffer !== 'undefined') return new Uint8Array(Buffer.from(base64, 'base64'));
+  // RFC 4648 standard alphabet, required padding, and zero unused pad bits.
+  // Validate before decoding: Buffer and atob otherwise accept different inputs.
+  if (typeof base64 !== 'string' || !/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(base64)) {
+    throw new Error('Expected canonical padded Base64.');
+  }
+  let bytes;
+  if (typeof Buffer !== 'undefined') {
+    bytes = new Uint8Array(Buffer.from(base64, 'base64'));
+  } else {
+    const binary = atob(base64);
+    bytes = Uint8Array.from(binary, char => char.charCodeAt(0));
+  }
+  if (bytesToBase64(bytes) !== base64) throw new Error('Non-canonical Base64 pad bits.');
+  return bytes;
+}
 
-  const binary = atob(base64);
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
+export function ed25519SignatureBytes(value) {
+  const bytes = base64ToBytes(value);
+  if (bytes.length !== 64) throw new Error('Ed25519 signature must contain exactly 64 bytes.');
   return bytes;
 }
 

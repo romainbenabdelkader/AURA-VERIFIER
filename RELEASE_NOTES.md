@@ -1,99 +1,103 @@
-# Pending follow-up to v1.2.0 preparation
-
-- Reject duplicate JSON names in manifest and supplied issuer text, including
-  escaped aliases and nested names; apply the same check to timestamp digests.
-- Reject malformed or contradictory recognized asset-hash declarations.
-- Report a declared hash without its file as not checked, including catalogue
-  declarations; do not let catalogue markers suppress the missing-file warning.
-- Check declared date syntax/calendar/offset separately from base-schema checks;
-  flag leap seconds as unassessed, without claiming independent timestamp assurance.
-- Reject contradictory present issuer identifiers and signed key labels.
-- Report absent/untrusted registry status explicitly and refuse a matching
-  current-key record whose status is revoked.
-- Add 32 semantic-policy cases in both engines, preserving current public fixtures.
-- Add 47 regression cases for parsing and signed-package acceptance.
-
-No schema, historical signed evidence, version tag or DOI is changed.
-Validation: the regression, synthetic/public RFC 3161 and offline suites pass
-under Node 20.20.2, 22.23.4 and 24.22.1 with OpenSSL 3.6.2. The CI matrix now
-includes Node 24. Additional local UI checks passed in Chrome, Firefox and
-Playwright WebKit (11 cases in each); WebKit is not the Safari application.
-This follow-up requires review before release. See docs/STRICT_VERIFICATION.md.
-
 # AURA-VERIFIER v1.2.0
 
-This source version brings together the changes since archived v1.1.0.
-The release status is recorded on GitHub and Zenodo; source version metadata
-alone does not establish that a release tag or an archive has been published.
+The source version is 1.2.0. GitHub Releases and the version-specific Zenodo
+record establish publication; package.json alone does not. These notes describe
+the changes since archived v1.1.0. Release packaging and archive publication
+are separate from the source version recorded here.
 
-## Included changes
+## Verification changes
 
-- Detached RFC 3161 verification through the Node CLI and locally installed
-  OpenSSL, including manifest binding, signature, supplied certificate chain
-  and nonce checks when the original request is provided.
-- A public, fictional AURA package with a real FreeTSA response and reproducible
-  offline verification. The timestamp preimage is RFC 8785 JCS of the complete
-  signed manifest, including its signature object.
-- Base-schema checks for published manifest versions 1.0 and 1.1, with separate
-  reporting of syntax, signatures, exact-byte integrity and archive-reference
-  inspection. A DOI-shaped string does not establish archive resolution.
-- Consistent rejection of unsupported versions and hash algorithms in Node and
-  WebCrypto; explicit Ed25519 key-type enforcement in Node; rejection of lone
-  Unicode surrogates in values and property names, including signature metadata.
-- A generator that creates fictional v1.0 packages in a fresh separate directory
-  and refuses overwriting. Historical signed fixtures remain unchanged.
-- Current integrator instructions and explicit labels for historical formats.
+- Detached RFC 3161 verification through the Node CLI and local OpenSSL:
+  binding to JCS of the complete signed manifest, supplied certificate-chain
+  and signature verification, and nonce comparison when the request is supplied.
+  The repository includes a real FreeTSA response over fictional public data.
+- Base-schema validation for manifest versions 1.0 and 1.1, with separate
+  reporting of schema, signature, exact-byte integrity, issuer metadata and
+  archive-reference syntax. Unknown and historical versions are unsupported.
+- Rejection of unsupported asset-hash algorithms, non-Ed25519 keys and lone
+  Unicode surrogates, without modifying frozen schemas or signed evidence.
+- Rejection of duplicate JSON property names, including escaped aliases;
+  malformed or contradictory recognized hashes; inconsistent present issuer
+  identifiers and signed key labels; and invalid supplied registry structures.
+- Calendar and offset checks for declared issuance dates. These checks do not
+  establish an independently attested time. Leap-second handling, comparison
+  with a trusted clock, and registry temporal applicability remain unassessed.
+  No comparison with the local clock or future-date warning is added in v1.2.0.
+- Explicit reporting of missing asset checks, including catalogue declarations,
+  and of missing, invalid or caller-supplied key-status information.
 
-## Compatibility and revoked keys
+## Audit corrections
 
-Only manifest versions `1.0` and `1.1` are supported. Historical formats,
-including AUTHENTICA's private `0.1-pilot` format and the `0.1-test` fixtures,
-receive an invalid overall result for unsupported version. Their signed bytes
-remain unchanged and their signature dimension may still be inspected. This
-does not establish that a historical signature was forged or determine its
-legal value. The standard draft's `origin_proof_version: "0.1"`, the Python
-demo and `0.1-pilot` are different historical formats.
+- Correct SHA3-256 padding for inputs whose length is 135 modulo 136. The old
+  code found in archived verifier 1.0.1, 1.0.2 and 1.1.0 produced an incorrect
+  digest at this boundary. Standard digests are now accepted and that erroneous
+  digest is rejected. No historical evidence is rewritten or silently repaired.
+- Require canonical padded standard Base64 and exactly 64 decoded bytes for an
+  Ed25519 signature in both engines. Previously accepted encodings, including
+  omitted padding, can now fail. Preserve their original bytes for diagnosis.
+- Report invalid registry structure separately from registry trust. Authenticity,
+  freshness, identity and authority are not established by a structural pass.
+- Correct the human-readable TDM signature-binding line and distinguish current
+  revocation acceptance policy from unassessed historical validity.
+- Label the supplied snapshot's current key status separately from the examined
+  key's revocation status; an active current record does not override revocation.
 
-Declared asset hashes require explicit `SHA3-256`. Valid v1.0 manifests do not
-require v1.1 reference anchors. Correctly signed but malformed current-format
-manifests fail schema/semantic checks; cryptographic validity does not override
-those failures. Published schemas and existing signed/TSA evidence are unchanged.
+See [audit corrections](docs/AUDIT_CORRECTIONS.md) for exact behavior, affected
+boundaries, reproduction instructions and remaining limits.
 
-Revocation policy is unchanged: a key listed as revoked in the supplied registry
-causes an invalid overall result, even when its signature is mathematically
-verifiable. An issuer-declared date before revocation does not override that
-policy. A timestamp or version upgrade does not restore trust in a revoked key.
-Registry provenance and freshness remain separate trust decisions.
+## Compatibility and historical evidence
 
-Pilot processing counts must not be presented as counts of currently valid
-evidence unless the relevant corpus, key status and results have been checked.
-Any later reissue is a new declaration with its actual issuance date; it does
-not modify or retroactively validate the original record.
+Supported manifest versions remain 1.0 and 1.1. AUTHENTICA's private 0.1-pilot,
+the 0.1-test fixtures, the standard's historical origin_proof_version 0.1 and
+the Python demonstrations are distinct formats. Unsupported versions receive
+an invalid overall result; their mathematical signature dimension can still be
+inspected. An invalid overall result does not by itself establish forgery or
+decide a historical document's legal value.
 
-## Verification and limits
+A key listed as revoked in the supplied registry remains rejected under the
+current acceptance policy. An issuer-declared earlier date or a later timestamp
+does not override that policy. Historical validity is not assessed. The date
+and reason stated in a registry do not independently establish the actual date
+of a key compromise. Registry authenticity and freshness remain separate.
 
-The regression suite includes 47 shared signed scenarios through Node and
-WebCrypto, with matching verdicts, and current-format generated vector checks.
-Separate suites cover synthetic RFC 3161 evidence and the real public FreeTSA
-fixture, including negative cases. Run `npm test` and `npm run test:timestamp`.
+Import simulations and processing counts do not establish counts of issued or
+currently valid evidence. Such claims require an inventory and verification of
+the relevant corpus. Any reissue is a new declaration with its actual date and
+an explicit relationship to the preserved original.
 
-WebCrypto runs under Node in these tests; this is not browser UI testing or
-independent-implementation reproduction. RFC 3161 does not establish qualified
-eIDAS timestamp status. TSA revocation and long-term preservation, civil issuer
-identity, legal authority, ownership and dossier completeness are not established.
+## Tests and reproduction
 
-See INTEGRATORS.md for the pending local date and identifier policy. Trusted
-issuer identity, registry freshness and full leap-second validation remain unassessed. Base-schema date-time
-formats remain annotations. See [strict verification](docs/STRICT_VERIFICATION.md)
-and the [RFC 3161 guide](docs/RFC3161_TIMESTAMP.md).
+The prepared source includes 137 official NIST SHA3-256 short-message vectors,
+1,025 further native-crypto comparisons, and 44 audit package scenarios shared
+between Node and WebCrypto. Existing strict-format, input-ambiguity, semantic,
+generated-vector, RFC 3161 and offline suites remain included. Test-family counts
+must not be added together as independent packages or production evidence.
 
-## Archive references
+The source validation record reports passing suites under Node 20.20.2,
+22.23.4 and 24.22.1 with OpenSSL 3.6.2. An actual browser suite exercises the
+44 audit scenarios and NIST vectors in Chromium, Firefox and Playwright WebKit,
+with external requests blocked. WebCrypto-under-Node tests and real browser
+tests are distinct; Playwright WebKit is not the Safari application.
+
+Run `npm test`, `npm run test:timestamp` and `npm run demo:offline`.
+See docs/AUDIT_CORRECTIONS.md for the pinned browser dependencies and
+`npm run test:browser`. Each final release must be tied to its own exact
+commit, archive checks and recorded results. These tests are engineering
+evidence; they do not establish CAVP validation or certification.
+
+## Limits and archives
+
+Archive references are inspected syntactically; DOI resolution and remote bytes
+are not verified by the offline verifier. Civil identity, authority, ownership,
+dossier completeness, registry freshness, long-term timestamp preservation and
+TSA revocation are not established. RFC 3161 verification does not establish
+qualified eIDAS timestamp status. Unrecognized profiles are not certified.
 
 Concept DOI: https://doi.org/10.5281/zenodo.21251286
 
 Historical v1.1.0 archive: https://doi.org/10.5281/zenodo.22069698
 
-The historical archive predates these additions and is preserved unchanged.
-Reference a new version-specific DOI only after the archive has been reviewed
-and published. Release and archive publication are separate from this source
-preparation; no existing DOI, schema or signed reference anchor is rewritten.
+The historical archive is preserved unchanged. Add a new version-specific DOI
+and archive digest only after an actual reviewed publication. Never rewrite an
+old signed reference anchor to point to new source bytes. See INTEGRATORS.md,
+docs/STRICT_VERIFICATION.md and docs/RFC3161_TIMESTAMP.md.

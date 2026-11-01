@@ -1,10 +1,11 @@
+import { inspectIssuerRegistry } from './issuer-check.js';
 import { inspectIssuedAt, inspectIssuerIdentifiers } from './semantic-check.js';
 import { parseUniqueJson } from './strict-json.js';
 import { canonicalize, unsignedManifest } from './jcs.js';
 import { checkBaseSchema } from './base-schema-check.js';
 import { inspectArchiveReferences } from './archive-check.js';
 import { sha3_256_hex } from './sha3.js';
-import { base64ToBytes, pemToDer, sameBytes } from './pem.js';
+import { ed25519SignatureBytes, pemToDer, sameBytes } from './pem.js';
 import { checkManifestStructure, inspectAssetHash, inspectTdmRightsReservation } from './schema-check.js';
 
 async function sha256Hex(bytes) {
@@ -44,7 +45,11 @@ export async function verifyAuraPackageBrowser({
   const warnings = [];
   const errors = [];
   const manifest = parseUniqueJson(manifestText);
-  const issuer = issuerText ? parseUniqueJson(issuerText) : null;
+  const issuerSupplied = issuerText !== null && issuerText !== undefined;
+  const issuer = issuerSupplied ? parseUniqueJson(issuerText) : null;
+  const registryValidation = inspectIssuerRegistry(issuer, issuerSupplied);
+  errors.push(...registryValidation.errors);
+  const usableIssuer = registryValidation.status === 'pass' ? issuer : null;
   const signature = manifest?.signature || {};
 
   // Structural validation and supported-version/algorithm policy are shared
@@ -102,7 +107,7 @@ export async function verifyAuraPackageBrowser({
   } else if (payload !== null) {
     try {
       const key = await crypto.subtle.importKey('spki', publicKeyDer, { name: 'Ed25519' }, false, ['verify']);
-      signatureOk = await crypto.subtle.verify({ name: 'Ed25519' }, key, base64ToBytes(signature.value), payload);
+      signatureOk = await crypto.subtle.verify({ name: 'Ed25519' }, key, ed25519SignatureBytes(signature.value), payload);
       if (!signatureOk) errors.push('Ed25519 signature mismatch.');
     } catch (error) {
       signatureOk = false;
@@ -137,7 +142,7 @@ export async function verifyAuraPackageBrowser({
 
   let issuerKeyOk = false;
   let issuerStatus = null;
-  if (issuer) {
+  if (usableIssuer) {
     issuerStatus = issuer.status || null;
     issuerKeyOk =
       issuer.public_key_fingerprint_sha256 === publicKeySha256 &&
@@ -145,17 +150,17 @@ export async function verifyAuraPackageBrowser({
 
     if (!issuerKeyOk) errors.push('Issuer fingerprint does not match provided public key.');
     if (issuer.status !== 'active') warnings.push(`Issuer status is ${issuer.status || 'unknown'}.`);
-  } else {
+  } else if (!issuerSupplied) {
     warnings.push('No issuer.json provided; issuer status and fingerprint were not checked.');
   }
 
   // --- Revoked / compromised issuer keys (out-of-band, from issuer.json) ---
   // Match by public-key fingerprint (sha256 OR sha3-256/DER), never by key_id
-  // alone: a manifest need not carry a key_id, and a compromised key means no
-  // signature from it can be trusted. A match is a hard failure, not a warning.
+  // alone. A match fails the current acceptance policy. Historical validity
+  // is a separate assessment; the declared issuance date cannot override it.
   let keyRevoked = false;
   let revocation = null;
-  const revokedKeys = issuer && Array.isArray(issuer.revoked_keys) ? issuer.revoked_keys : [];
+  const revokedKeys = usableIssuer?.revoked_keys ?? [];
   const revokedMatch = revokedKeys.find(
     (rk) =>
       (rk?.public_key_fingerprint_sha256 && rk.public_key_fingerprint_sha256 === publicKeySha256) ||
@@ -192,8 +197,10 @@ export async function verifyAuraPackageBrowser({
     schemaValidation: checkBaseSchema(manifest),
     issuedAtValidation,
     issuerIdentifiers,
-    keyStatusCheck: issuer ? (keyRevoked ? 'revoked' : 'not_listed_as_revoked_in_supplied_registry') : 'not_checked',
-    registryTrust: { source: issuer ? 'caller_supplied' : 'not_supplied', authenticity: 'not_assessed', freshness: 'not_assessed' },
+    registryValidation,
+    keyStatusCheck: registryValidation.status === 'invalid' ? 'invalid_registry' : issuerSupplied ? (keyRevoked ? 'revoked' : 'not_listed_as_revoked_in_supplied_registry') : 'not_checked',
+    historicalValidity: 'not_assessed',
+    registryTrust: { source: issuerSupplied ? 'caller_supplied' : 'not_supplied', authenticity: 'not_assessed', freshness: 'not_assessed' },
     archiveResolution: 'not_checked',
     archiveReferences: inspectArchiveReferences(manifest),
     issuerIdentity: 'not_assessed',
