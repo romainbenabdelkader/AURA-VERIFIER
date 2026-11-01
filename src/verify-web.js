@@ -6,6 +6,7 @@ import { checkBaseSchema } from './base-schema-check.js';
 import { inspectArchiveReferences } from './archive-check.js';
 import { sha3_256_hex } from './sha3.js';
 import { ed25519SignatureBytes, pemToDer, sameBytes } from './pem.js';
+import { importEd25519VerificationKey } from './webcrypto-key.js';
 import { checkManifestStructure, inspectAssetHash, inspectTdmRightsReservation } from './schema-check.js';
 
 async function sha256Hex(bytes) {
@@ -106,7 +107,7 @@ export async function verifyAuraPackageBrowser({
     errors.push('Manifest signature is missing.');
   } else if (payload !== null) {
     try {
-      const key = await crypto.subtle.importKey('spki', publicKeyDer, { name: 'Ed25519' }, false, ['verify']);
+      const key = await importEd25519VerificationKey(publicKeyDer);
       signatureOk = await crypto.subtle.verify({ name: 'Ed25519' }, key, ed25519SignatureBytes(signature.value), payload);
       if (!signatureOk) errors.push('Ed25519 signature mismatch.');
     } catch (error) {
