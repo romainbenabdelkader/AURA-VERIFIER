@@ -1,3 +1,5 @@
+import './test-sha3-boundaries.js';
+import './test-audit-hardening.js';
 import './test-semantic-checks.js';
 import './test-input-ambiguity.js';
 import assert from 'node:assert/strict';

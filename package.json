@@ -12,7 +12,8 @@
     "demo:timestamp": "node scripts/verify-timestamp-example.js",
     "demo:offline": "node scripts/offline-demo.js",
     "generate:test-vector": "node scripts/generate-test-vector.js",
-    "serve:web": "python3 -m http.server 5177"
+    "serve:web": "python3 -m http.server 5177",
+    "test:browser": "node tests/test-browser-ui.js"
   },
   "keywords": [
     "aura",
@@ -26,5 +27,8 @@
   "license": "MIT",
   "engines": {
     "node": ">=20"
+  },
+  "devDependencies": {
+    "playwright": "1.62.1"
   }
 }

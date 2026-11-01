@@ -95,7 +95,7 @@ This is not an official AURA service, certification or endorsement.”
 No certification registry or new label policy is introduced by this tool.
 
 
-## Local semantic and trust policy (pending follow-up)
+## Local semantic and trust policy
 
 The frozen schemas are unchanged. `issuedAtValidation` is separate from the
 base-schema result: the verifier requires RFC 3339 syntax (T/t and Z/z accepted),
@@ -122,3 +122,16 @@ must not be interpreted as a fresh trusted non-revocation assertion.
 Parsing duplicate names and semantic policy failures do not imply signature
 forgery. Correctly signed but inconsistent records can have signatureOk=true and
 an invalid overall result. Keep original evidence for historical inspection.
+
+
+## Audit corrections and encoding compatibility
+
+See [AUDIT_CORRECTIONS.md](docs/AUDIT_CORRECTIONS.md) before adopting this source
+revision. It fixes the SHA3-256 block boundary, validates the supplied registry,
+and consistently rejects non-canonical signature encodings. `registryValidation`
+is a structural result, not a trust assertion. An invalid registry reports
+`keyStatusCheck: invalid_registry`; never infer non-revocation from the boolean
+`keyRevoked` alone. Historical validity remains explicitly unassessed.
+
+Run the actual browser suite with `npm run test:browser` after installing the
+pinned development dependency and its browsers as described in that guide.

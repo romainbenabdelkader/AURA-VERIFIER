@@ -1,3 +1,19 @@
+# Pending audit corrections before v1.2.0 publication
+
+- Correct SHA3-256 padding at input lengths 135 modulo 136. Standard digests are
+  accepted; the previously erroneous digest is rejected, without rewriting old proofs.
+- Reject malformed supplied issuer registries and revocation entries; expose
+  `registryValidation` and `keyStatusCheck: invalid_registry`.
+- Apply canonical padded Base64 and exact Ed25519 signature length in both engines.
+- Correct the human TDM signature-binding report and distinguish current
+  revocation policy from unassessed historical validity.
+- Add official NIST vectors, a native-crypto oracle, 44 shared package cases,
+  real Chromium/Firefox/WebKit UI tests and a browser CI job.
+
+See [audit correction and compatibility notes](docs/AUDIT_CORRECTIONS.md).
+This change is prepared for review. No new version tag or Zenodo archive is
+claimed; original evidence and archived releases remain unchanged.
+
 # Pending follow-up to v1.2.0 preparation
 
 - Reject duplicate JSON names in manifest and supplied issuer text, including

@@ -225,3 +225,12 @@ The concept DOI above resolves to the latest published archive. Cite the exact
 version DOI and commit used for reproduction. The historical archives are not
 rewritten when main evolves; a new version-specific DOI is referenced only after
 that archive exists.
+
+
+## Pending audit hardening
+
+The unreleased source includes a SHA3-256 block-boundary correction, strict
+registry and signature-input validation, and actual browser regression tests.
+Read [compatibility and reproduction notes](docs/AUDIT_CORRECTIONS.md) before
+using this source to assess historical evidence. Release metadata alone does
+not identify a reviewed or archived artifact.

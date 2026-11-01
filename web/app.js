@@ -177,12 +177,13 @@ function render(result) {
     <div class="badges">
       <span class="badge">Signature ${result.signatureOk ? 'valid' : 'invalid'}</span>
       <span class="badge">Base schema ${escapeHtml(result.schemaValidation?.status || 'not_checked')}</span>
+      <span class="badge">Registry structure ${escapeHtml(result.registryValidation?.status || 'not_checked')}</span>
       <span class="badge">${escapeHtml(integrityLabel(result.integrityStatus))}</span>
       ${result.issuerKeyPinOk === null || result.issuerKeyPinOk === undefined ? '' : `<span class="badge">Key pin ${result.issuerKeyPinOk ? 'OK' : 'FAILED'}</span>`}
       ${result.keyRevoked ? '<span class="badge badge-danger">Key REVOKED</span>' : ''}
       <span class="badge">Evidence: ${escapeHtml(result.evidenceType || 'evidence_package')}</span>
     </div>
-    ${result.keyRevoked ? `<p class="revoked-note">This signing key was revoked${result.revocation?.revokedAt ? ` on ${escapeHtml(result.revocation.revokedAt)}` : ''} after <strong>${escapeHtml(result.revocation?.reason || 'revocation')}</strong>${result.revocation?.supersededBy ? `, superseded by <strong>${escapeHtml(result.revocation.supersededBy)}</strong>` : ''}. No signature from a revoked key can be trusted.</p>` : ''}
+    ${result.keyRevoked ? `<p class="revoked-note">This signing key was revoked${result.revocation?.revokedAt ? ` on ${escapeHtml(result.revocation.revokedAt)}` : ''} after <strong>${escapeHtml(result.revocation?.reason || 'revocation')}</strong>${result.revocation?.supersededBy ? `, superseded by <strong>${escapeHtml(result.revocation.supersededBy)}</strong>` : ''}. This verifier rejects it under the current acceptance policy. Mathematical signature verification is reported separately; historical validity is not assessed.</p>` : ''}
     ${tdmBlock}
     <p>Archive resolution: not checked. Schema validity does not confirm public archiving.</p>
     ${(result.archiveReferences?.warnings || []).map(warning => `<p class="archive-notice">${escapeHtml(warning)}</p>`).join('')}
