@@ -1,4 +1,5 @@
 import { createV11Package } from './v11-package.js';
+import fs from 'node:fs';
 
 // Expected digests in the fixture helper use Node crypto, not AURA's SHA3.
 export function hardeningCases() {
@@ -7,6 +8,9 @@ export function hardeningCases() {
   const valid = { status: 'valid', signatureOk: true, integrityStatus: 'verified' };
   const invalidRegistry = { status: 'invalid', signatureOk: true, keyStatusCheck: 'invalid_registry' };
   add('canonical-package', createV11Package(), valid);
+  // Fixed public fixture: random key generation only rarely covers this byte.
+  const leadingZero = JSON.parse(fs.readFileSync(new URL('../vectors/ed25519/leading-zero-public-key.json', import.meta.url), 'utf8'));
+  add('leading-zero-public-key', { ...leadingZero, assetBytes: Buffer.from(leadingZero.assetHex, 'hex') }, valid);
   for (const length of [135, 271, 407]) {
     add(`native-sha3-${length}`, createV11Package({ assetBytes: Buffer.alloc(length, 0x61) }), valid);
   }
