@@ -4,6 +4,9 @@ import http from 'node:http';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { hardeningCases } from './helpers/hardening-cases.js';
+import { canonicalize, unsignedManifest } from '../src/jcs.js';
+import { pemToDer, ed25519SignatureBytes } from '../src/pem.js';
+import { verifyAuraPackage } from '../src/verify-node.js';
 
 // The optional override lets an offline reviewer use a preinstalled Playwright.
 const { chromium, firefox, webkit } = await import(process.env.AURA_PLAYWRIGHT_MODULE || 'playwright');
@@ -59,7 +62,36 @@ try {
         await page.locator('#verify').click();
         await page.locator('#result:not(.hidden) pre').waitFor();
         const actual = JSON.parse(await page.locator('#result pre').innerText());
-        for (const [field, value] of Object.entries(expected)) assert.equal(actual[field], value, `${name}/${test}/${field}`);
+        try {
+          for (const [field, value] of Object.entries(expected)) assert.equal(actual[field], value, `${name}/${test}/${field}`);
+        } catch (error) {
+          // These are freshly generated fictional fixtures, with no private keys.
+          // Preserve the failing input: a new run generates different signatures.
+          result.failedCase = { name: test, expected, actual, fixture: {
+            manifestText: pkg.manifestText, publicKeyPem: pkg.publicKeyPem,
+            issuerText: pkg.issuerText, assetHex: Buffer.from(pkg.assetBytes).toString('hex'),
+          } };
+          try {
+            result.failedCase.nodeResult = await verifyAuraPackage(pkg);
+            const manifest = JSON.parse(pkg.manifestText);
+            result.failedCase.nativeBrowser = await page.evaluate(async ({ der, signature, payload }) => {
+              const results = {};
+              for (const format of ['spki', 'raw']) {
+                try {
+                  const key = await crypto.subtle.importKey(format, new Uint8Array(format === 'raw' ? der.slice(-32) : der), 'Ed25519', false, ['verify']);
+                  results[format] = await crypto.subtle.verify('Ed25519', key, new Uint8Array(signature), new Uint8Array(payload));
+                } catch (e) { results[format] = String(e); }
+              }
+              return results;
+            }, {
+              der: Array.from(pemToDer(pkg.publicKeyPem)),
+              signature: Array.from(ed25519SignatureBytes(manifest.signature.value)),
+              payload: Array.from(Buffer.from(canonicalize(unsignedManifest(manifest)))),
+            });
+          } catch (diagnosticError) { result.failedCase.diagnosticError = String(diagnosticError); }
+          console.error('Browser failure diagnostic: ' + JSON.stringify(result.failedCase));
+          throw error;
+        }
         if (actual.keyRevoked) {
           const message = await page.locator('.revoked-note').innerText();
           assert.ok(message.includes('historical validity is not assessed'));

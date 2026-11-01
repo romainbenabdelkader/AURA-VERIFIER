@@ -28,3 +28,10 @@ jobs:
       - run: npm ci --ignore-scripts
       - run: npx playwright install --with-deps chromium firefox webkit
       - run: npm run test:browser
+        env:
+          AURA_BROWSER_REPORT: browser-results.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: browser-results
+          path: browser-results.json
