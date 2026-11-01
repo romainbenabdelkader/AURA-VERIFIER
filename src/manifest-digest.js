@@ -1,3 +1,4 @@
+import { parseUniqueJson } from './strict-json.js';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import { canonicalize } from './jcs.js';
@@ -5,7 +6,7 @@ import { sha3_256_hex } from './sha3.js';
 
 // One canonical preimage: JCS of the COMPLETE signed manifest, including the signature.
 export function canonicalSignedManifestDigest(manifestText) {
-  const manifest = JSON.parse(manifestText);
+  const manifest = parseUniqueJson(manifestText);
   if (!manifest || typeof manifest !== 'object' || Array.isArray(manifest) ||
       !manifest.signature || typeof manifest.signature.value !== 'string' || !manifest.signature.value) {
     throw new Error('A complete signed AURA manifest is required for RFC 3161 timestamping.');

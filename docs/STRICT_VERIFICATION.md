@@ -63,12 +63,39 @@ engines and confirms that rerunning cannot overwrite the signed destination.
 
 ## Limits and follow-up
 
-These corrections address the four reproduced controls, not a full formal
-audit of RFC 8785 or every AURA semantic rule. In particular, duplicate JSON
-property detection before `JSON.parse`, cross-field issuer identifier policy,
-and semantic validation of the issuer-declared date require separate review.
+These corrections cover the reproduced input and semantic-policy failures, not
+a full formal audit of RFC 8785 or every AURA semantic rule. Issuer identity
+assurance, registry freshness and full leap-second validation remain outside
+these checks. See INTEGRATORS.md for the pending semantic policy.
 An existing base-schema pass treats date-time format as an annotation.
 Cryptographic validity does not establish identity, representation, ownership
 or dossier completeness. The local registry's provenance/freshness remains a
 caller trust decision. RFC 3161 verification does not establish qualified eIDAS
 status; see [the timestamp guide](RFC3161_TIMESTAMP.md).
+
+
+## Pending follow-up: ambiguous inputs and asset checks
+
+This follow-up is not a published release. Raw manifest and issuer JSON
+with duplicate property names is rejected as an input error, including escaped
+spellings of the same name and duplicates nested in objects or arrays. The CLI
+exits with code 2; the verification functions reject their promises, as for
+malformed JSON. RFC 3161 manifest-digest generation uses the same input check.
+No normalized or re-signed replacement is produced.
+
+The recognized asset-hash fields (`asset.hash`, `asset.asset_hash_sha3_256`,
+`asset_hash`) must contain identical 64-character lowercase hexadecimal digests
+when more than one is present. Empty, malformed or contradictory non-null values
+are rejected, and integrity is not reported as verified. Identical aliases are
+retained for compatibility. Null aliases retain the historical meaning of no
+hash; a null canonical asset.hash remains subject to its base-schema constraint.
+These rules do not modify the published schemas.
+
+A declared hash without a supplied file is `not_checked` with a warning, even
+when a catalogue marker is present. Fileless declarations without a declared
+hash remain `not_applicable`. The committed tests exercise WebCrypto under Node.
+Additional local UI checks passed in Chrome, Firefox and Playwright WebKit; these
+are not an independent implementation or a Safari application test. Declared
+calendar/offset checks and issuer-identifier comparisons are separate local
+policy; see INTEGRATORS.md. Registry provenance/freshness,
+trusted issuance time and independent implementation review remain open.

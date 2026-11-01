@@ -13,6 +13,11 @@ This source includes consistent validation across Node and WebCrypto. See
 [strict verification and compatibility](docs/STRICT_VERIFICATION.md).
 Supported manifest versions are exactly `1.0` and `1.1`.
 
+This pending follow-up also checks ambiguous JSON/hash declarations, declared date
+syntax and calendar values, and consistency of present issuer identifiers.
+These are verifier-policy checks, separate from schema validation and from
+trusted identity or timestamp assurance. See [integrator policy](INTEGRATORS.md).
+
 This project verifies AURA manifests without requiring an AUTHENTICA account,
 the AUTHENTICA backend, or any upload to `lockdna.tech`.
 

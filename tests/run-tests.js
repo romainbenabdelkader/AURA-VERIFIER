@@ -1,3 +1,5 @@
+import './test-semantic-checks.js';
+import './test-input-ambiguity.js';
 import assert from 'node:assert/strict';
 import './conformance.js';
 import './test-strict-verification.js';

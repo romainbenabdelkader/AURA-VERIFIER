@@ -13,7 +13,8 @@ Source: https://github.com/romainbenabdelkader/AURA-STANDARD/tree/91b2d51fd6808c
 The checker implements their assertion keywords: type, const, required,
 properties, pattern, minLength, items and local $ref. Additional properties
 remain allowed. The date-time format is annotation-only, as in the default
-JSON Schema 2020-12 vocabulary. This is not a general JSON Schema engine.
+JSON Schema 2020-12 vocabulary. Separate verifier policy checks the declared
+date calendar/offset and identifier consistency; see below. This is not a general JSON Schema engine.
 Only manifest versions `1.0` and `1.1` are supported. Unknown, missing and
 historical versions produce an invalid overall result. Their base-schema
 dimension may still report `not_checked`; it never establishes version support.
@@ -92,3 +93,32 @@ specification. Tested with [verifier commit] against [schema version].
 This is not an official AURA service, certification or endorsement.”
 
 No certification registry or new label policy is introduced by this tool.
+
+
+## Local semantic and trust policy (pending follow-up)
+
+The frozen schemas are unchanged. `issuedAtValidation` is separate from the
+base-schema result: the verifier requires RFC 3339 syntax (T/t and Z/z accepted),
+seconds and an explicit offset, and checks calendar dates and component ranges.
+It does not compare the declared date with a trusted clock, certificate lifetime
+or revocation time, and does not establish the date's truth. Leap-second inputs
+are not fully assessed and produce a warning, not a verified date. Negative-zero
+offsets are preserved. No signed input is normalized or rewritten.
+
+Present issuer identifiers (`issuer.id`, `reference_anchor.issuer_key.issuer_id`,
+`issuer.json.issuer`, `issuer.json.issuer_id`) must be non-empty strings and agree
+exactly. Present signed key identifiers (`issuer.key_id` and the anchor's
+`key_id`) must agree. Optional missing v1.0 identifiers are not invented.
+`issuerIdentifiers` reports these comparisons only, never civil or organizational
+identity. The supplied registry's current key_id need not equal an old signed
+key_id: rotation and revocation are still checked by key fingerprints.
+
+`keyStatusCheck` distinguishes absence of a registry, presence on its revoked
+list, and absence from that supplied list. A matching current-key record with
+status revoked is also refused. `registryTrust` explicitly leaves authenticity
+and freshness unassessed. The legacy keyRevoked boolean is retained; false alone
+must not be interpreted as a fresh trusted non-revocation assertion.
+
+Parsing duplicate names and semantic policy failures do not imply signature
+forgery. Correctly signed but inconsistent records can have signatureOk=true and
+an invalid overall result. Keep original evidence for historical inspection.

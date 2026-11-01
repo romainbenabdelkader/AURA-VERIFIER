@@ -1,3 +1,5 @@
+import { inspectIssuedAt, inspectIssuerIdentifiers } from './semantic-check.js';
+import { parseUniqueJson } from './strict-json.js';
 import { canonicalize, unsignedManifest } from './jcs.js';
 import { checkBaseSchema } from './base-schema-check.js';
 import { inspectArchiveReferences } from './archive-check.js';
@@ -41,25 +43,29 @@ export async function verifyAuraPackageBrowser({
 }) {
   const warnings = [];
   const errors = [];
-  const manifest = JSON.parse(manifestText);
-  const issuer = issuerText ? JSON.parse(issuerText) : null;
-  const signature = manifest.signature || {};
+  const manifest = parseUniqueJson(manifestText);
+  const issuer = issuerText ? parseUniqueJson(issuerText) : null;
+  const signature = manifest?.signature || {};
 
   // Structural validation and supported-version/algorithm policy are shared
   // with the Node engine. Unsupported versions always invalidate the result.
   const structure = checkManifestStructure(manifest);
   errors.push(...structure.errors);
   warnings.push(...structure.warnings);
+  const issuedAtValidation = inspectIssuedAt(manifest?.issued_at);
+  const issuerIdentifiers = inspectIssuerIdentifiers(manifest, issuer);
+  errors.push(...issuedAtValidation.errors, ...issuerIdentifiers.errors);
+  warnings.push(...issuedAtValidation.warnings);
   const tdmReservation = inspectTdmRightsReservation(manifest);
 
   // --- Asset integrity (optional asset; fileless catalog claims are N/A) ---
-  const { hash: manifestAssetHash, algorithmSupported } = inspectAssetHash(manifest);
+  const { hash: manifestAssetHash, algorithmSupported, hashDeclared, hashDeclarationsValid } = inspectAssetHash(manifest);
   const catalogClaim = isCatalogClaim(manifest);
   let computedAssetHash = null;
   let assetHashOk = null; // true | false | null (not applicable / not checked)
   let integrityStatus; // 'verified' | 'mismatch' | 'not_checked' | 'not_applicable'
 
-  if (manifestAssetHash && !algorithmSupported) {
+  if (hashDeclared && (!algorithmSupported || !hashDeclarationsValid)) {
     integrityStatus = 'not_checked';
   } else if (assetBytes) {
     computedAssetHash = sha3_256_hex(new Uint8Array(assetBytes));
@@ -71,7 +77,7 @@ export async function verifyAuraPackageBrowser({
       integrityStatus = 'not_checked';
       warnings.push('Asset file supplied but the manifest declares no asset hash; integrity was not checked.');
     }
-  } else if (manifestAssetHash && !catalogClaim) {
+  } else if (hashDeclared) {
     integrityStatus = 'not_checked';
     warnings.push('No asset file supplied; asset integrity was NOT verified. Supply the original file to check integrity.');
   } else {
@@ -155,15 +161,18 @@ export async function verifyAuraPackageBrowser({
       (rk?.public_key_fingerprint_sha256 && rk.public_key_fingerprint_sha256 === publicKeySha256) ||
       (rk?.public_key_fingerprint_sha3_256 && rk.public_key_fingerprint_sha3_256 === publicKeySha3),
   );
-  if (revokedMatch) {
+  // A supplied current-key record can itself be revoked. Apply its status only
+  // when its fingerprints match the provided key, never on a label alone.
+  const effectiveRevocation = revokedMatch || (issuerKeyOk && issuer?.status === 'revoked' ? issuer : null);
+  if (effectiveRevocation) {
     keyRevoked = true;
-    const reason = revokedMatch.revocation_reason || 'key revocation';
-    const superseded = revokedMatch.superseded_by ? `, superseded by ${revokedMatch.superseded_by}` : '';
+    const reason = effectiveRevocation.revocation_reason || 'key revocation';
+    const superseded = effectiveRevocation.superseded_by ? `, superseded by ${effectiveRevocation.superseded_by}` : '';
     revocation = {
-      keyId: revokedMatch.key_id || null,
-      revokedAt: revokedMatch.revoked_at || null,
+      keyId: effectiveRevocation.key_id || null,
+      revokedAt: effectiveRevocation.revoked_at || null,
       reason,
-      supersededBy: revokedMatch.superseded_by || null,
+      supersededBy: effectiveRevocation.superseded_by || null,
     };
     errors.push(`Key revoked after ${reason}${superseded}.`);
   }
@@ -181,12 +190,16 @@ export async function verifyAuraPackageBrowser({
   return {
     status,
     schemaValidation: checkBaseSchema(manifest),
+    issuedAtValidation,
+    issuerIdentifiers,
+    keyStatusCheck: issuer ? (keyRevoked ? 'revoked' : 'not_listed_as_revoked_in_supplied_registry') : 'not_checked',
+    registryTrust: { source: issuer ? 'caller_supplied' : 'not_supplied', authenticity: 'not_assessed', freshness: 'not_assessed' },
     archiveResolution: 'not_checked',
     archiveReferences: inspectArchiveReferences(manifest),
     issuerIdentity: 'not_assessed',
     valid: status === 'valid',
     evidenceType: catalogClaim ? 'catalog_claim' : 'evidence_package',
-    auraUid: manifest.aura_uid || manifest.aura_id || null,
+    auraUid: manifest?.aura_uid || manifest?.aura_id || null,
     integrityStatus,
     assetHashOk,
     signatureOk,
@@ -202,7 +215,7 @@ export async function verifyAuraPackageBrowser({
     canonicalization: signature.canonicalization || null,
     signatureAlgorithm: signature.algorithm || null,
     signatureFormat: signature.format || null,
-    issuedAt: manifest.issued_at || null,
+    issuedAt: manifest?.issued_at || null,
     proofScope: manifest?.proof?.scope || null,
     tdmRightsReservation: {
       profileClaimed: tdmReservation.claimed,

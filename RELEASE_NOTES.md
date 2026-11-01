@@ -1,3 +1,25 @@
+# Pending follow-up to v1.2.0 preparation
+
+- Reject duplicate JSON names in manifest and supplied issuer text, including
+  escaped aliases and nested names; apply the same check to timestamp digests.
+- Reject malformed or contradictory recognized asset-hash declarations.
+- Report a declared hash without its file as not checked, including catalogue
+  declarations; do not let catalogue markers suppress the missing-file warning.
+- Check declared date syntax/calendar/offset separately from base-schema checks;
+  flag leap seconds as unassessed, without claiming independent timestamp assurance.
+- Reject contradictory present issuer identifiers and signed key labels.
+- Report absent/untrusted registry status explicitly and refuse a matching
+  current-key record whose status is revoked.
+- Add 32 semantic-policy cases in both engines, preserving current public fixtures.
+- Add 47 regression cases for parsing and signed-package acceptance.
+
+No schema, historical signed evidence, version tag or DOI is changed.
+Validation: the regression, synthetic/public RFC 3161 and offline suites pass
+under Node 20.20.2, 22.23.4 and 24.22.1 with OpenSSL 3.6.2. The CI matrix now
+includes Node 24. Additional local UI checks passed in Chrome, Firefox and
+Playwright WebKit (11 cases in each); WebKit is not the Safari application.
+This follow-up requires review before release. See docs/STRICT_VERIFICATION.md.
+
 # AURA-VERIFIER v1.2.0
 
 This source version brings together the changes since archived v1.1.0.
@@ -60,8 +82,8 @@ independent-implementation reproduction. RFC 3161 does not establish qualified
 eIDAS timestamp status. TSA revocation and long-term preservation, civil issuer
 identity, legal authority, ownership and dossier completeness are not established.
 
-Duplicate JSON property handling before `JSON.parse`, cross-field issuer policy
-and semantic date validation remain follow-up reviews. Base-schema date-time
+See INTEGRATORS.md for the pending local date and identifier policy. Trusted
+issuer identity, registry freshness and full leap-second validation remain unassessed. Base-schema date-time
 formats remain annotations. See [strict verification](docs/STRICT_VERIFICATION.md)
 and the [RFC 3161 guide](docs/RFC3161_TIMESTAMP.md).
 
