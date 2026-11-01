@@ -18,7 +18,7 @@ export function formatHumanResult(result) {
     `Key revoked: ${result.keyRevoked ? `YES — ${result.revocation?.reason || 'revoked'}${result.revocation?.supersededBy ? `, superseded by ${result.revocation.supersededBy}` : ''}` : result.keyStatusCheck === 'invalid_registry' ? 'not checked (invalid registry)' : result.keyStatusCheck === 'not_checked' ? 'not checked (no registry supplied)' : 'not listed in supplied registry; freshness not assessed'}`,
     `Issuer key pin: ${result.issuerKeyPinOk === null || result.issuerKeyPinOk === undefined ? 'n/a' : result.issuerKeyPinOk ? 'OK' : 'FAIL'}`,
     `Issuer key: ${result.issuerKeyOk ? 'OK' : 'not checked'}`,
-    `Issuer status: ${result.issuerStatus || 'not provided'}`,
+    `Current registry key status: ${result.issuerStatus || 'not provided'} (supplied snapshot)`,
     `Registry structure: ${result.registryValidation?.status || 'not_checked'}`,
     'Historical validity: not assessed; revoked keys are rejected under the current acceptance policy.',
     `Canonicalization: ${result.canonicalization || 'unknown'}`,

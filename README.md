@@ -13,7 +13,7 @@ This source includes consistent validation across Node and WebCrypto. See
 [strict verification and compatibility](docs/STRICT_VERIFICATION.md).
 Supported manifest versions are exactly `1.0` and `1.1`.
 
-This pending follow-up also checks ambiguous JSON/hash declarations, declared date
+This version also checks ambiguous JSON/hash declarations, declared date
 syntax and calendar values, and consistency of present issuer identifiers.
 These are verifier-policy checks, separate from schema validation and from
 trusted identity or timestamp assurance. See [integrator policy](INTEGRATORS.md).
@@ -227,9 +227,9 @@ rewritten when main evolves; a new version-specific DOI is referenced only after
 that archive exists.
 
 
-## Pending audit hardening
+## Verification corrections and compatibility
 
-The unreleased source includes a SHA3-256 block-boundary correction, strict
+Version 1.2.0 includes a SHA3-256 block-boundary correction, strict
 registry and signature-input validation, and actual browser regression tests.
 Read [compatibility and reproduction notes](docs/AUDIT_CORRECTIONS.md) before
 using this source to assess historical evidence. Release metadata alone does

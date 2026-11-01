@@ -66,7 +66,7 @@ engines and confirms that rerunning cannot overwrite the signed destination.
 These corrections cover the reproduced input and semantic-policy failures, not
 a full formal audit of RFC 8785 or every AURA semantic rule. Issuer identity
 assurance, registry freshness and full leap-second validation remain outside
-these checks. See INTEGRATORS.md for the pending semantic policy.
+these checks. See INTEGRATORS.md for the local semantic policy.
 An existing base-schema pass treats date-time format as an annotation.
 Cryptographic validity does not establish identity, representation, ownership
 or dossier completeness. The local registry's provenance/freshness remains a

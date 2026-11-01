@@ -11,6 +11,13 @@ for (const { name, pkg, expected, humanIncludes } of cases) {
     const result = await verify(pkg);
     for (const [field, value] of Object.entries(expected)) assert.equal(result[field], value, `${name}: ${field}`);
     if (humanIncludes) assert.ok(formatHumanResult(result).includes(humanIncludes), `${name}: human report`);
+    if (name.startsWith('matching-revoked-')) {
+      const human = formatHumanResult(result);
+      assert.equal(result.status, 'invalid');
+      assert.ok(human.includes('Key revoked: YES'), `${name}: examined key is revoked`);
+      assert.ok(human.includes('Current registry key status: active (supplied snapshot)'), `${name}: distinguish current record from examined key`);
+      assert.ok(!human.includes('Issuer status:'), `${name}: remove ambiguous status label`);
+    }
     if (result.keyStatusCheck === 'invalid_registry') {
       assert.equal(result.registryValidation.status, 'invalid');
       assert.ok(result.registryValidation.errors.length > 0);

@@ -105,6 +105,12 @@ or revocation time, and does not establish the date's truth. Leap-second inputs
 are not fully assessed and produce a warning, not a verified date. Negative-zero
 offsets are preserved. No signed input is normalized or rewritten.
 
+Version 1.2.0 does not compare `issued_at` with the local system clock. A future
+date that passes syntax and calendar checks produces no future-date warning.
+A date-check pass establishes format consistency only, not that issuance
+occurred at that time. Applications may add a separate clock-based warning;
+such a warning is not independent timestamp evidence.
+
 Present issuer identifiers (`issuer.id`, `reference_anchor.issuer_key.issuer_id`,
 `issuer.json.issuer`, `issuer.json.issuer_id`) must be non-empty strings and agree
 exactly. Present signed key identifiers (`issuer.key_id` and the anchor's
@@ -118,6 +124,11 @@ list, and absence from that supplied list. A matching current-key record with
 status revoked is also refused. `registryTrust` explicitly leaves authenticity
 and freshness unassessed. The legacy keyRevoked boolean is retained; false alone
 must not be interpreted as a fresh trusted non-revocation assertion.
+
+The human report labels the snapshot's current record as `Current registry key
+status`. It can be active while the examined signing key is listed as revoked.
+`Key revoked` and the overall verdict apply to the examined key; the current
+record's active status does not override a revocation or prove registry trust.
 
 Parsing duplicate names and semantic policy failures do not imply signature
 forgery. Correctly signed but inconsistent records can have signatureOk=true and

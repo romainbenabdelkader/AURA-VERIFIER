@@ -1,6 +1,6 @@
-# Audit corrections prepared for v1.2.0
+# Verification corrections in v1.2.0
 
-This source change is not a published release, independent audit or CAVP
+The checks documented here do not establish independent audit or CAVP
 validation. Existing signed evidence, frozen schemas and archived ZIPs are not
 rewritten. Use the exact reviewed commit and published archive coordinates once
 a release actually exists.
@@ -90,6 +90,19 @@ The TDM signature-binding line now reports yes/no/not checked for that dimension
 instead of reusing a revocation message. Invalid registry structure is displayed
 explicitly. Neither correction changes the meaning of a rights declaration or
 establishes issuer authority, ownership, automated discovery or legal effect.
+
+The former `Issuer status` label is now `Current registry key status`, explicitly
+qualified as a supplied snapshot. It describes the current registry record, not
+the historical signing key being examined. An active current record and a revoked
+examined key may coexist; revocation still causes an invalid overall result.
+
+## Declared-date policy for v1.2.0
+
+The syntax, calendar and offset checks are retained without comparison to the
+local system clock. A syntactically valid future date receives no future-date
+warning. A pass is not an attestation of the issuance time. An application-level
+clock warning can be considered separately without changing signed evidence or
+presenting a local clock as a trusted timestamp source.
 
 ## Regression and browser reproduction
 
