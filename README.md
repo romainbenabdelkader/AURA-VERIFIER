@@ -215,6 +215,10 @@ The private key used to generate test vectors is never written to disk.
 Concept DOI (all versions):
 https://doi.org/10.5281/zenodo.21251286
 
+Archived v1.2.1:
+https://doi.org/10.5281/zenodo.23898686
+Source commit: `e1fa13c4fb253c2e07a99538524b869028bb62b4`.
+
 Archived v1.2.0 (before the browser integrity-label correction):
 https://doi.org/10.5281/zenodo.23857156
 
