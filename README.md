@@ -4,7 +4,7 @@ Integrator instructions and limits: [INTEGRATORS.md](INTEGRATORS.md).
 
 Independent verifier for AURA Evidence Packages.
 
-Version of this source tree: v1.2.0.
+Version of this source tree: v1.2.1.
 
 Published release status: [GitHub releases](https://github.com/romainbenabdelkader/AURA-VERIFIER/releases).
 A source version is not evidence that a release tag or a Zenodo version has been published.
@@ -215,6 +215,9 @@ The private key used to generate test vectors is never written to disk.
 Concept DOI (all versions):
 https://doi.org/10.5281/zenodo.21251286
 
+Archived v1.2.0 (before the browser integrity-label correction):
+https://doi.org/10.5281/zenodo.23857156
+
 Archived v1.1.0 (historical reference, before the RFC 3161 and strict-validation additions):
 https://doi.org/10.5281/zenodo.22069698
 
@@ -228,6 +231,11 @@ that archive exists.
 
 
 ## Verification corrections and compatibility
+
+Version 1.2.1 corrects the browser explanation for unchecked integrity: missing
+files and missing declared hashes are distinguished, including empty files.
+Cryptographic engines and acceptance decisions remain those of v1.2.0.
+The browser suite now covers 52 cases, including seven integrity-label checks.
 
 Version 1.2.0 includes a SHA3-256 block-boundary correction, strict
 registry and signature-input validation, and actual browser regression tests.
