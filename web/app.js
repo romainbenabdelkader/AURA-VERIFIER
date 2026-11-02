@@ -149,15 +149,24 @@ function statusTitle(status) {
   return 'Invalid';
 }
 
-function integrityLabel(s) {
+function integrityLabel(result, assetSupplied) {
+  const s = result.integrityStatus;
   if (s === 'verified') return 'Asset integrity verified';
   if (s === 'mismatch') return 'Asset integrity FAILED';
   if (s === 'not_applicable') return 'Integrity N/A (catalog claim — no asset file)';
-  if (s === 'not_checked') return 'Integrity not checked (no asset file supplied)';
+  if (s === 'not_checked') {
+    if (!assetSupplied) return 'Integrity not checked (no asset file supplied)';
+    if (result.computedAssetHash !== null && result.manifestAssetHash === null) {
+      return 'Integrity not checked (no asset hash declared in the manifest)';
+    }
+    // Invalid hash declarations and unsupported algorithms have their own
+    // errors in the report; do not describe them as missing files or hashes.
+    return 'Integrity not checked';
+  }
   return 'Integrity unknown';
 }
 
-function render(result) {
+function render(result, assetSupplied) {
   const tdm = result.tdmRightsReservation;
   const tdmBlock = tdm?.profileClaimed
     ? `<div class="profile-note">
@@ -178,7 +187,7 @@ function render(result) {
       <span class="badge">Signature ${result.signatureOk ? 'valid' : 'invalid'}</span>
       <span class="badge">Base schema ${escapeHtml(result.schemaValidation?.status || 'not_checked')}</span>
       <span class="badge">Registry structure ${escapeHtml(result.registryValidation?.status || 'not_checked')}</span>
-      <span class="badge">${escapeHtml(integrityLabel(result.integrityStatus))}</span>
+      <span class="badge">${escapeHtml(integrityLabel(result, assetSupplied))}</span>
       ${result.issuerKeyPinOk === null || result.issuerKeyPinOk === undefined ? '' : `<span class="badge">Key pin ${result.issuerKeyPinOk ? 'OK' : 'FAILED'}</span>`}
       ${result.keyRevoked ? '<span class="badge badge-danger">Key REVOKED</span>' : ''}
       <span class="badge">Evidence: ${escapeHtml(result.evidenceType || 'evidence_package')}</span>
@@ -225,6 +234,7 @@ async function runVerification() {
         publicKeyPem,
         issuerText: issuerFile ? await readText(issuerFile) : null,
       }),
+      Boolean(assetFile),
     );
   } catch (error) {
     renderError(error);
