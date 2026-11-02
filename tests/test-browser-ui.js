@@ -4,6 +4,7 @@ import http from 'node:http';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { hardeningCases } from './helpers/hardening-cases.js';
+import { createV11Package } from './helpers/v11-package.js';
 import { canonicalize, unsignedManifest } from '../src/jcs.js';
 import { pemToDer, ed25519SignatureBytes } from '../src/pem.js';
 import { verifyAuraPackage } from '../src/verify-node.js';
@@ -12,6 +13,26 @@ import { verifyAuraPackage } from '../src/verify-node.js';
 const { chromium, firefox, webkit } = await import(process.env.AURA_PLAYWRIGHT_MODULE || 'playwright');
 const root = fileURLToPath(new URL('../', import.meta.url)).replace(/[\\/]$/, '');
 const cases = hardeningCases();
+const withoutHash = { beforeSign: m => { delete m.asset.hash; } };
+const integrityCases = [
+  ['file-without-hash', createV11Package(withoutHash), 'warning', 'not_checked',
+    'Integrity not checked (no asset hash declared in the manifest)'],
+  ['hash-without-file', { ...createV11Package(), assetBytes: null }, 'warning', 'not_checked',
+    'Integrity not checked (no asset file supplied)'],
+  ['empty-file-without-hash', createV11Package({ ...withoutHash, assetBytes: Buffer.alloc(0) }), 'warning', 'not_checked',
+    'Integrity not checked (no asset hash declared in the manifest)'],
+  ['empty-file-with-hash', createV11Package({ assetBytes: Buffer.alloc(0) }), 'valid', 'verified',
+    'Asset integrity verified'],
+  ['no-file-no-hash', { ...createV11Package(withoutHash), assetBytes: null }, 'valid', 'not_applicable',
+    'Integrity N/A (catalog claim — no asset file)'],
+  ['file-with-unsupported-hash-algorithm', createV11Package({ beforeSign: m => { m.asset.hash_algorithm = 'SHA-256'; } }), 'invalid', 'not_checked',
+    'Integrity not checked'],
+  ['file-with-malformed-hash', createV11Package({ beforeSign: m => { m.asset.hash = 'invalid'; } }), 'invalid', 'not_checked',
+    'Integrity not checked'],
+];
+for (const [name, pkg, status, integrityStatus, integrityText] of integrityCases) {
+  cases.push({ name, pkg, expected: { status, integrityStatus, signatureOk: true }, integrityText });
+}
 const server = http.createServer((req, res) => {
   const file = path.resolve(root, '.' + new URL(req.url, 'http://localhost').pathname);
   if (!file.startsWith(root + path.sep) || !fs.existsSync(file) || !fs.statSync(file).isFile()) {
@@ -49,7 +70,7 @@ try {
         return data.vectors.length;
       });
       assert.equal(result.nistVectors, 137);
-      for (const { name: test, pkg, expected } of cases) {
+      for (const { name: test, pkg, expected, integrityText } of cases) {
         await page.goto(origin + '/web/index.html');
         for (const [selector, value, filename, mimeType] of [
           ['#manifest', pkg.manifestText, 'manifest.json', 'application/json'],
@@ -64,12 +85,16 @@ try {
         const actual = JSON.parse(await page.locator('#result pre').innerText());
         try {
           for (const [field, value] of Object.entries(expected)) assert.equal(actual[field], value, `${name}/${test}/${field}`);
+          if (integrityText) {
+            const badges = await page.locator('#result .badge').allTextContents();
+            assert.deepEqual(badges.filter(text => /^(Asset integrity|Integrity)/.test(text)), [integrityText], `${name}/${test}/integrity label`);
+          }
         } catch (error) {
           // These are freshly generated fictional fixtures, with no private keys.
           // Preserve the failing input: a new run generates different signatures.
           result.failedCase = { name: test, expected, actual, fixture: {
             manifestText: pkg.manifestText, publicKeyPem: pkg.publicKeyPem,
-            issuerText: pkg.issuerText, assetHex: Buffer.from(pkg.assetBytes).toString('hex'),
+            issuerText: pkg.issuerText, assetHex: pkg.assetBytes === null ? null : Buffer.from(pkg.assetBytes).toString('hex'),
           } };
           try {
             result.failedCase.nodeResult = await verifyAuraPackage(pkg);
@@ -98,7 +123,7 @@ try {
           assert.ok(!message.includes('No signature from a revoked key can be trusted'));
         }
         if (actual.keyStatusCheck === 'invalid_registry') assert.equal(actual.registryValidation.status, 'invalid');
-        result.cases.push({ name: test, status: actual.status, signatureOk: actual.signatureOk, keyStatusCheck: actual.keyStatusCheck, integrityStatus: actual.integrityStatus });
+        result.cases.push({ name: test, status: actual.status, signatureOk: actual.signatureOk, keyStatusCheck: actual.keyStatusCheck, integrityStatus: actual.integrityStatus, integrityText });
       }
       assert.equal(result.externalRequests.length, 0);
       console.log(`${name} ${result.version}: ${result.nistVectors} NIST vectors; ${result.cases.length} UI cases; no external requests.`);
