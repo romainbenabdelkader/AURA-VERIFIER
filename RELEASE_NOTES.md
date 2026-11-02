@@ -1,3 +1,35 @@
+# AURA-VERIFIER v1.2.1
+
+Version 1.2.1 is a browser explanation and release-metadata correction.
+Publication is established by GitHub Releases and the archived version record.
+
+## Changes since v1.2.0
+
+- Distinguish a missing asset file from a supplied file whose manifest declares
+  no asset hash. Both remain unchecked integrity; their explanations differ.
+- Treat empty files as supplied files. Unsupported or malformed hash declarations
+  retain a general unchecked-integrity label and their detailed report errors.
+- Add seven browser regression cases, bringing the UI suite to 52 cases per
+  browser, alongside 137 official NIST SHA3-256 short-message vectors.
+- Display the source version in the browser interface and update release metadata.
+
+## Compatibility and validation
+
+Cryptographic engines, acceptance decisions and supported manifest versions
+(1.0 and 1.1) are unchanged. Historical 0.1-pilot formats remain unsupported,
+and keys listed as revoked in the supplied registry remain rejected under the
+current policy. No signed evidence, frozen schema or previous archive is changed.
+
+Run `npm test`, `npm run test:timestamp` and `npm run test:browser`.
+See the GitHub Actions run for the exact release commit. The browser suite runs
+in Chromium, Firefox and Playwright WebKit; Playwright WebKit is not Safari.
+Identity, ownership, registry trust, historical validity and qualified timestamp
+status remain outside the guarantees of a passing technical verification.
+
+Concept DOI: https://doi.org/10.5281/zenodo.21251286
+
+---
+
 # AURA-VERIFIER v1.2.0
 
 The source version is 1.2.0. GitHub Releases and the version-specific Zenodo

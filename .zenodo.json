@@ -1,13 +1,13 @@
 {
-  "title": "AURA-VERIFIER — Independent CLI and Browser Verifier (v1.2.0)",
-  "description": "Independent open-source CLI and browser verifier for AURA evidence packages. Version 1.2.0 adds detached RFC 3161 timestamp verification through Node and local OpenSSL, published manifest 1.0/1.1 base-schema checks, and consistent strict input validation. It corrects SHA3-256 padding at lengths 135 modulo 136, rejects the historical incorrect digest, requires canonical padded Base64 and exact Ed25519 signature length, and validates supplied issuer registries and revocation entries. Duplicate JSON names, contradictory hashes, inconsistent present issuer identifiers, unsupported versions and algorithms, and invalid Unicode are rejected. A guarded raw-key import path handles canonical Ed25519 public keys rejected by affected browser SPKI importers while preserving original DER digest pins. Calendar and offset checks do not attest issuance time or warn about future dates. Official NIST vectors, native-crypto comparisons and actual browser regression tests support reproduction. Mathematical signature validity, exact-byte integrity, caller-supplied key status and timestamp checks are reported separately from identity, authority, ownership and historical validity. Revoked keys remain rejected under the current acceptance policy; snapshot authenticity and freshness are not established. RFC 3161 checks do not establish qualified eIDAS timestamp status. Verification requires no AUTHENTICA account or backend. Frozen schemas, signed evidence and historical archives remain unchanged.",
+  "title": "AURA-VERIFIER — Independent CLI and Browser Verifier (v1.2.1)",
+  "description": "Independent open-source CLI and browser verifier for AURA evidence packages. Version 1.2.1 corrects the browser integrity explanation when an asset is supplied but no hash is declared in the manifest. It distinguishes a missing file from a missing declared hash, preserves a general explanation for malformed or unsupported hash declarations, and adds seven browser regression cases including empty files. It retains the cryptographic engines and acceptance policies of v1.2.0: Ed25519 signatures, SHA3-256 exact-byte integrity, RFC 8785/JCS canonicalization, strict input checks, caller-supplied issuer registry checks and optional detached RFC 3161 timestamp verification through Node and local OpenSSL. Supported manifest versions remain exactly 1.0 and 1.1. Signature validity, file integrity and supplied key status are reported separately; identity, authority, ownership, registry authenticity and freshness, historical validity and qualified eIDAS timestamp status are not established. Verification requires no AUTHENTICA account or backend. Frozen schemas, signed evidence and historical archives remain unchanged.",
   "creators": [
     {
       "name": "Benabdelkader, Romain",
       "orcid": "0009-0005-8754-088X"
     }
   ],
-  "version": "1.2.0",
+  "version": "1.2.1",
   "license": "MIT",
   "access_right": "open",
   "keywords": [
