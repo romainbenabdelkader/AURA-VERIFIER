@@ -1,12 +1,12 @@
 import { inspectIssuerRegistry } from './issuer-check.js';
 import { inspectIssuedAt, inspectIssuerIdentifiers } from './semantic-check.js';
-import { parseUniqueJson } from './strict-json.js';
+import { parseVerificationJson, inspectPublicKeyPem } from './verification-input.js';
 import crypto from 'node:crypto';
 import { inspectArchiveReferences } from './archive-check.js';
 import { checkBaseSchema } from './base-schema-check.js';
 import { canonicalize, unsignedManifest } from './jcs.js';
 import { sha3_256_hex } from './sha3.js';
-import { ed25519SignatureBytes, pemToDer, sameBytes } from './pem.js';
+import { ed25519SignatureBytes, sameBytes } from './pem.js';
 import { checkManifestStructure, inspectAssetHash, inspectTdmRightsReservation } from './schema-check.js';
 
 function sha256Hex(bytes) {
@@ -44,9 +44,9 @@ export async function verifyAuraPackage({
 }) {
   const warnings = [];
   const errors = [];
-  const manifest = parseUniqueJson(manifestText);
+  const manifest = parseVerificationJson(manifestText, 'manifestText');
   const issuerSupplied = issuerText !== null && issuerText !== undefined;
-  const issuer = issuerSupplied ? parseUniqueJson(issuerText) : null;
+  const issuer = issuerSupplied ? parseVerificationJson(issuerText, 'issuerText') : null;
   const registryValidation = inspectIssuerRegistry(issuer, issuerSupplied);
   errors.push(...registryValidation.errors);
   const usableIssuer = registryValidation.status === 'pass' ? issuer : null;
@@ -93,6 +93,7 @@ export async function verifyAuraPackage({
   }
 
   // --- Signature ---
+  const publicKeyDer = inspectPublicKeyPem(publicKeyPem, errors, 'Invalid supplied public key');
   let canonicalPayload = null;
   try {
     // Validate the complete JSON input, including fields in the signature object
@@ -106,7 +107,7 @@ export async function verifyAuraPackage({
 
   if (!signature.value) {
     errors.push('Manifest signature is missing.');
-  } else if (canonicalPayload !== null) {
+  } else if (canonicalPayload !== null && publicKeyDer !== null) {
     try {
       const publicKey = crypto.createPublicKey(publicKeyPem);
       if (publicKey.asymmetricKeyType !== 'ed25519') {
@@ -125,13 +126,12 @@ export async function verifyAuraPackage({
     }
   }
 
-  const publicKeyDer = pemToDer(publicKeyPem);
-  const publicKeySha256 = sha256Hex(publicKeyDer);
-  const publicKeySha3 = sha3_256_hex(publicKeyDer);
+  const publicKeySha256 = publicKeyDer === null ? null : sha256Hex(publicKeyDer);
+  const publicKeySha3 = publicKeyDer === null ? null : sha3_256_hex(publicKeyDer);
 
   if (manifest?.issuer?.public_key_pem) {
-    const manifestKeyDer = pemToDer(manifest.issuer.public_key_pem);
-    if (!sameBytes(publicKeyDer, manifestKeyDer)) {
+    const manifestKeyDer = inspectPublicKeyPem(manifest.issuer.public_key_pem, errors, 'Invalid manifest issuer public key');
+    if (publicKeyDer !== null && manifestKeyDer !== null && !sameBytes(publicKeyDer, manifestKeyDer)) {
       errors.push('Provided public key does not match manifest issuer public key.');
     }
   }
@@ -141,7 +141,7 @@ export async function verifyAuraPackage({
   // where the key was fetched from.
   let issuerKeyPinOk = null;
   const pinnedDigest = manifest?.reference_anchor?.issuer_key?.public_key_digest || null;
-  if (pinnedDigest) {
+  if (pinnedDigest && publicKeyDer !== null) {
     issuerKeyPinOk = pinnedDigest === `sha3-256:${publicKeySha3}`;
     if (!issuerKeyPinOk) {
       errors.push('Public key does not match reference_anchor.issuer_key.public_key_digest (DER/SPKI sha3-256).');
@@ -152,11 +152,11 @@ export async function verifyAuraPackage({
   let issuerStatus = null;
   if (usableIssuer) {
     issuerStatus = issuer.status || null;
-    issuerKeyOk =
+    issuerKeyOk = publicKeyDer !== null &&
       issuer.public_key_fingerprint_sha256 === publicKeySha256 &&
       issuer.public_key_fingerprint_sha3_256 === publicKeySha3;
 
-    if (!issuerKeyOk) errors.push('Issuer fingerprint does not match provided public key.');
+    if (publicKeyDer !== null && !issuerKeyOk) errors.push('Issuer fingerprint does not match provided public key.');
     if (issuer.status !== 'active') warnings.push(`Issuer status is ${issuer.status || 'unknown'}.`);
   } else if (!issuerSupplied) {
     warnings.push('No issuer.json provided; issuer status and fingerprint were not checked.');
@@ -206,7 +206,7 @@ export async function verifyAuraPackage({
     issuedAtValidation,
     issuerIdentifiers,
     registryValidation,
-    keyStatusCheck: registryValidation.status === 'invalid' ? 'invalid_registry' : issuerSupplied ? (keyRevoked ? 'revoked' : 'not_listed_as_revoked_in_supplied_registry') : 'not_checked',
+    keyStatusCheck: registryValidation.status === 'invalid' ? 'invalid_registry' : publicKeyDer === null ? 'not_checked' : issuerSupplied ? (keyRevoked ? 'revoked' : 'not_listed_as_revoked_in_supplied_registry') : 'not_checked',
     historicalValidity: 'not_assessed',
     registryTrust: { source: issuerSupplied ? 'caller_supplied' : 'not_supplied', authenticity: 'not_assessed', freshness: 'not_assessed' },
     archiveResolution: 'not_checked',

@@ -15,7 +15,7 @@ export function formatHumanResult(result) {
     `AURA UID: ${result.auraUid || 'unknown'}`,
     `Integrity: ${result.integrityStatus || (result.assetHashOk ? 'verified' : 'unknown')}`,
     `Signature: ${result.signatureOk ? 'OK' : 'FAIL'}`,
-    `Key revoked: ${result.keyRevoked ? `YES — ${result.revocation?.reason || 'revoked'}${result.revocation?.supersededBy ? `, superseded by ${result.revocation.supersededBy}` : ''}` : result.keyStatusCheck === 'invalid_registry' ? 'not checked (invalid registry)' : result.keyStatusCheck === 'not_checked' ? 'not checked (no registry supplied)' : 'not listed in supplied registry; freshness not assessed'}`,
+    `Key revoked: ${result.keyRevoked ? `YES — ${result.revocation?.reason || 'revoked'}${result.revocation?.supersededBy ? `, superseded by ${result.revocation.supersededBy}` : ''}` : result.keyStatusCheck === 'invalid_registry' ? 'not checked (invalid registry)' : result.keyStatusCheck === 'not_checked' ? (result.publicKeyFingerprintSha256 === null ? 'not checked (public key unavailable)' : 'not checked (no registry supplied)') : 'not listed in supplied registry; freshness not assessed'}`,
     `Issuer key pin: ${result.issuerKeyPinOk === null || result.issuerKeyPinOk === undefined ? 'n/a' : result.issuerKeyPinOk ? 'OK' : 'FAIL'}`,
     `Issuer key: ${result.issuerKeyOk ? 'OK' : 'not checked'}`,
     `Current registry key status: ${result.issuerStatus || 'not provided'} (supplied snapshot)`,

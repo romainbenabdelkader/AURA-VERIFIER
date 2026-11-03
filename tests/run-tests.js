@@ -3,6 +3,7 @@ import './test-webcrypto-key.js';
 import './test-audit-hardening.js';
 import './test-semantic-checks.js';
 import './test-input-ambiguity.js';
+import './test-input-errors.js';
 import assert from 'node:assert/strict';
 import './conformance.js';
 import './test-strict-verification.js';
