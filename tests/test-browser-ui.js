@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import http from 'node:http';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { pemErrorCases, jsonErrorCases } from './helpers/input-error-cases.js';
 import { hardeningCases } from './helpers/hardening-cases.js';
 import { createV11Package } from './helpers/v11-package.js';
 import { canonicalize, unsignedManifest } from '../src/jcs.js';
@@ -12,7 +13,7 @@ import { verifyAuraPackage } from '../src/verify-node.js';
 // The optional override lets an offline reviewer use a preinstalled Playwright.
 const { chromium, firefox, webkit } = await import(process.env.AURA_PLAYWRIGHT_MODULE || 'playwright');
 const root = fileURLToPath(new URL('../', import.meta.url)).replace(/[\\/]$/, '');
-const cases = hardeningCases();
+const cases = [...hardeningCases(), ...pemErrorCases()];
 const withoutHash = { beforeSign: m => { delete m.asset.hash; } };
 const integrityCases = [
   ['file-without-hash', createV11Package(withoutHash), 'warning', 'not_checked',
@@ -125,8 +126,26 @@ try {
         if (actual.keyStatusCheck === 'invalid_registry') assert.equal(actual.registryValidation.status, 'invalid');
         result.cases.push({ name: test, status: actual.status, signatureOk: actual.signatureOk, keyStatusCheck: actual.keyStatusCheck, integrityStatus: actual.integrityStatus, integrityText });
       }
+      // Unparseable input is an error, not a completed signature/integrity report.
+      result.inputErrors = [];
+      for (const { name: test, pkg, field } of jsonErrorCases()) {
+        await page.goto(origin + '/web/index.html');
+        for (const [selector, value, filename] of [
+          ['#manifest', pkg.manifestText, 'manifest.json'],
+          ['#issuer', pkg.issuerText, 'issuer.json'],
+          ['#publicKey', pkg.publicKeyPem, 'public-key.pem'],
+        ]) {
+          await page.locator(selector).setInputFiles({ name: filename, mimeType: 'text/plain', buffer: Buffer.from(value) });
+        }
+        await page.locator('#verify').click();
+        await page.locator('#result:not(.hidden) pre').waitFor();
+        assert.equal(await page.locator('#result h2').innerText(), 'Verification failed');
+        assert.ok((await page.locator('#result pre').innerText()).includes(`Invalid JSON in ${field}:`));
+        assert.equal(await page.locator('#result .badge').count(), 0);
+        result.inputErrors.push({ name: test, field });
+      }
       assert.equal(result.externalRequests.length, 0);
-      console.log(`${name} ${result.version}: ${result.nistVectors} NIST vectors; ${result.cases.length} UI cases; no external requests.`);
+      console.log(`${name} ${result.version}: ${result.nistVectors} NIST vectors; ${result.cases.length} UI reports; ${result.inputErrors.length} input errors; no external requests.`);
     } finally { await browser.close(); }
   }
 } finally {

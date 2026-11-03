@@ -2,9 +2,11 @@
 
 Integrator instructions and limits: [INTEGRATORS.md](INTEGRATORS.md).
 
-Independent verifier for AURA Evidence Packages.
+Verifier for AURA Evidence Packages, operationally independent of AUTHENTICA.
+This describes how it runs; it is not a claim of external audit or certification.
 
-Version of this source tree: v1.2.1.
+Version of this source tree: v1.2.2-dev (unreleased).
+The latest published release remains v1.2.1; its tag and archive are unchanged.
 
 Published release status: [GitHub releases](https://github.com/romainbenabdelkader/AURA-VERIFIER/releases).
 A source version is not evidence that a release tag or a Zenodo version has been published.
@@ -235,6 +237,13 @@ that archive exists.
 
 
 ## Verification corrections and compatibility
+
+The unreleased v1.2.2-dev changes handle public-key decoding failures in both
+engines without discarding completed integrity checks. JSON parsing failures
+remain API errors, now identified by code and input field; `verify --json`
+returns an explicit input-error object with exit code 2. See the
+[input error contract](INTEGRATORS.md#input-errors-in-the-javascript-api-and-cli).
+The browser suite covers 58 verification reports and five parsing-error displays.
 
 Version 1.2.1 corrects the browser explanation for unchecked integrity: missing
 files and missing declared hashes are distinguished, including empty files.

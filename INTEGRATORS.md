@@ -50,6 +50,34 @@ Exit codes: 0 valid under the local checks; 1 warnings/incomplete checks; 2 inva
 or input error. The browser verifier uses the same schema check.
 No external files are uploaded by these verification functions.
 
+### Input errors in the JavaScript API and CLI
+
+This contract describes the unreleased patch after archived v1.2.1.
+
+Both `verifyAuraPackage` (Node) and `verifyAuraPackageBrowser` (WebCrypto)
+expect JSON text and a public key in PEM text. A decoding failure in a supplied or embedded
+PEM produces an **invalid report**, retaining other completed checks such as
+asset integrity. If the supplied PEM cannot be decoded, its fingerprints and
+`issuerKeyPinOk` are `null`; signature verification cannot succeed, and
+`keyStatusCheck` is `not_checked` (or `invalid_registry` if the registry is
+also invalid). This does not establish a signature mismatch or non-revocation.
+
+Malformed JSON, duplicate JSON property names, and non-text JSON arguments
+still reject the API promise before verification starts. They now throw
+`AuraInputError` from `src/verification-input.js`, with `code: "invalid_json"`
+and `field: "manifestText"` or `"issuerText"`. Catch this error separately from
+an unexpected runtime failure; neither is a successful verification. Syntactically
+valid JSON with an invalid schema instead receives the usual invalid report.
+
+For these JSON parsing errors, `verify --json` exits with code 2 and writes an
+error object to stdout: `{"status":"input_error","valid":false,"error":{"code":
+"invalid_json","field":"manifestText","message":"…"}}`. This is **not a
+verification report**: signature, schema and integrity dimensions are absent
+because they were not evaluated. Without `--json`, the CLI prints the error
+to stderr. Argument, file-access and unexpected runtime errors continue to
+use stderr and exit 2; callers must check the exit code, including when stdout
+is empty. The browser displays a parsing error without verification badges.
+
 Read the dimensions independently:
 
 - `schemaValidation`: pass/fail/not_checked, schema ID and exact field errors.

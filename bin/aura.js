@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import fs from 'node:fs';
+import { AuraInputError } from '../src/verification-input.js';
 import { verifyAuraPackage } from '../src/verify-node.js';
 import { formatHumanResult } from '../src/report.js';
 import { createRfc3161TimestampQuery, verifyRfc3161Timestamp } from '../src/verify-timestamp-node.js';
@@ -104,7 +105,15 @@ async function main() {
     process.exitCode = result.status === 'valid' ? 0 : result.status === 'warning' ? 1 : 2;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    console.error(`AURA verification failed: ${message}`);
+    if (command === 'verify' && rest.includes('--json') && error instanceof AuraInputError) {
+      console.log(JSON.stringify({
+        status: 'input_error',
+        valid: false,
+        error: { code: error.code, field: error.field, message },
+      }, null, 2));
+    } else {
+      console.error(`AURA verification failed: ${message}`);
+    }
     process.exitCode = 2;
   }
 }
