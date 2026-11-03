@@ -52,7 +52,7 @@ No external files are uploaded by these verification functions.
 
 ### Input errors in the JavaScript API and CLI
 
-This contract describes the unreleased patch after archived v1.2.1.
+This contract applies starting with verifier v1.2.2.
 
 Both `verifyAuraPackage` (Node) and `verifyAuraPackageBrowser` (WebCrypto)
 expect JSON text and a public key in PEM text. A decoding failure in a supplied or embedded

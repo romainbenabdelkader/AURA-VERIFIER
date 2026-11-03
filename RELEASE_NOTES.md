@@ -1,3 +1,34 @@
+# AURA-VERIFIER v1.2.2
+
+Public-key PEM decoding failures now produce an invalid report in both engines,
+preserving other completed checks such as asset integrity. Missing decoded key
+material is not replaced by a digest or a non-revocation claim. Malformed embedded
+issuer keys also produce an invalid report independently of the signature result.
+
+JSON parsing failures still reject the API promise, now as `AuraInputError` with
+`code: invalid_json` and the affected input field. For these errors, `verify --json`
+writes an `input_error` object and exits 2, with no fabricated verification
+dimensions. Argument, file-access and unexpected runtime errors retain the
+stderr/exit-2 behavior. Integrators must handle both reports and input errors;
+see [INTEGRATORS.md](INTEGRATORS.md#input-errors-in-the-javascript-api-and-cli).
+
+Validation includes the existing regression suite, 32 focused API/CLI cases,
+and 58 UI reports plus five parsing-error displays in each of Chromium, Firefox
+and Playwright WebKit. Each browser also runs 137 NIST SHA3 vectors. Playwright
+WebKit is not a Safari test.
+
+Supported manifest versions remain 1.0 and 1.1. Historical 0.1-pilot formats are
+still unsupported. Revoked keys in a supplied registry remain rejected under
+the current policy; historical validity remains unassessed. Cryptographic
+primitives, frozen schemas, signed originals and prior archives are unchanged.
+No new specification or conformance profile is introduced.
+
+The version-specific archive reference is recorded only after publication and
+byte-for-byte comparison with the release source. The concept DOI remains
+10.5281/zenodo.21251286.
+
+---
+
 # AURA-VERIFIER v1.2.1
 
 Version 1.2.1 is a browser explanation and release-metadata correction.
