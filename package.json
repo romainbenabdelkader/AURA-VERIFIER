@@ -13,7 +13,8 @@
     "demo:offline": "node scripts/offline-demo.js",
     "generate:test-vector": "node scripts/generate-test-vector.js",
     "serve:web": "python3 -m http.server 5177",
-    "test:browser": "node tests/test-browser-ui.js"
+    "test:browser": "node tests/test-browser-ui.js",
+    "test:package": "node tests/test-npm-package.js"
   },
   "keywords": [
     "aura",
@@ -30,5 +31,28 @@
   },
   "devDependencies": {
     "playwright": "1.62.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/romainbenabdelkader/AURA-VERIFIER.git"
+  },
+  "homepage": "https://github.com/romainbenabdelkader/AURA-VERIFIER#readme",
+  "bugs": {
+    "url": "https://github.com/romainbenabdelkader/AURA-VERIFIER/issues"
+  },
+  "files": [
+    "bin/",
+    "src/",
+    "web/",
+    "docs/",
+    "examples/rfc3161-freetsa/",
+    "scripts/verify-timestamp-example.js",
+    "INTEGRATORS.md",
+    "RELEASE_NOTES.md",
+    "CITATION.cff"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
   }
 }
