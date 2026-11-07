@@ -1,8 +1,15 @@
 # npm distribution
 
 Package name: `aura-verifier`. Command: `aura`. Node.js 20 or newer is required.
-The registry package is not published yet. Its availability must be confirmed
-on [npm](https://www.npmjs.com/package/aura-verifier) before announcing it.
+Published versions are listed on [npm](https://www.npmjs.com/package/aura-verifier).
+
+## Install from npm
+
+```sh
+npm install --global aura-verifier@1.2.2
+aura verify --manifest manifest.json --public-key public-key.pem \
+  --asset recording.wav --issuer issuer.json --json
+```
 
 ## Install a prepared tarball
 
@@ -20,12 +27,6 @@ The four paths are locally supplied evidence, not files fetched by the tool.
 Exit codes remain 0 for valid, 1 for warnings/incomplete checks, and 2 for an
 invalid report or input error. A valid report is not proof of ownership or
 identity. See [integrator limits](../INTEGRATORS.md).
-
-Once version 1.2.2 is actually published, registry installation will be:
-
-```sh
-npm install --global aura-verifier@1.2.2
-```
 
 No runtime npm dependencies or installation scripts are required. Optional
 RFC 3161 commands require OpenSSL 3.x on PATH; ordinary verification does not.
@@ -83,8 +84,8 @@ package name is available and that the intended account will own it.
 
 Publish only the exact tarball produced and tested for the reviewed commit.
 After publication, install `aura-verifier@1.2.2` in a new directory, compare
-the registry tarball checksum with the tested artifact, rerun the example,
-and update the availability notice above and in the README.
+the registry tarball checksum with the tested artifact and rerun the example.
+Announce availability only after these registry checks succeed.
 
 There is no automatic publishing workflow in this change. Subsequent releases
 can use [npm trusted publishing](https://docs.npmjs.com/trusted-publishers/)
