@@ -73,6 +73,17 @@ The test issuer is fictional and must not be used in production.
 See the [public vector and expected results](examples/rfc3161-freetsa/README.md)
 and [RFC 3161 timestamp guide](docs/RFC3161_TIMESTAMP.md).
 
+## npm distribution
+
+The npm package is being prepared; repository changes alone do not establish
+publication. Check the [npm package page](https://www.npmjs.com/package/aura-verifier)
+for available versions before using registry installation commands.
+
+The prepared package installs the existing `aura` command with Node.js 20+.
+It has no runtime npm dependencies. OpenSSL 3.x is needed only for optional
+RFC 3161 operations. See [package installation and release checks](docs/NPM_DISTRIBUTION.md)
+for local tarball installation and the publication procedure.
+
 ## CLI
 
 ```bash
