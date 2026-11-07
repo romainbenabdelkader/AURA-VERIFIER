@@ -75,14 +75,19 @@ and [RFC 3161 timestamp guide](docs/RFC3161_TIMESTAMP.md).
 
 ## npm distribution
 
-The npm package is being prepared; repository changes alone do not establish
-publication. Check the [npm package page](https://www.npmjs.com/package/aura-verifier)
-for available versions before using registry installation commands.
+Install the CLI from the public npm registry with Node.js 20 or newer:
 
-The prepared package installs the existing `aura` command with Node.js 20+.
-It has no runtime npm dependencies. OpenSSL 3.x is needed only for optional
-RFC 3161 operations. See [package installation and release checks](docs/NPM_DISTRIBUTION.md)
-for local tarball installation and the publication procedure.
+```sh
+npm install --global aura-verifier@1.2.2
+aura verify --manifest manifest.json --public-key public-key.pem \
+  --asset recording.wav --issuer issuer.json --json
+```
+
+The file paths refer to your local evidence. Published versions are listed on
+the [npm package page](https://www.npmjs.com/package/aura-verifier). The package
+has no runtime npm dependencies. OpenSSL 3.x is needed only for optional RFC 3161
+operations. See [package installation and release checks](docs/NPM_DISTRIBUTION.md)
+for tarball installation, result meanings and the publication procedure.
 
 ## CLI
 
